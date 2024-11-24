@@ -62,13 +62,14 @@ class client_thread(threading.Thread):
 
 
 			# Do the thing
-			print("Working on Job ", str(job))
+			print("Working on Job ", str(job["HEURISTIC_SIDES"]))
 			templating.gen_templates(job)
 			templating.compile()
 			solver_result = templating.execute()
-			print(solver_result.stdout) 
+			solver_result = str(solver_result.stdout.decode("utf-8")).strip(",")
+			print(solver_result) 
 
-			job["result"] = json.dumps(str(solver_result.stdout))
+			job["index_counts"] = list(map(int, solver_result.split(",")))
 
 
 			# Submit results

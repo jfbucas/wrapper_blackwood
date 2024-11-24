@@ -20,22 +20,22 @@ namespace EternityII_Solver
                 number_virtual_cores = Environment.ProcessorCount;
             }
 
+            ConcurrentDictionary<int, long> index_counts = new ConcurrentDictionary<int, long>();
+
             for (int number_loops = 0; number_loops < %%NUMBER_LOOPS%%; number_loops++)
 	    {
                 Prepare_Pieces_And_Heuristics();
 
-                Console.WriteLine("Solving with {0} threads...", number_virtual_cores);
+                //Console.WriteLine("Solving with {0} threads...", number_virtual_cores);
 
-                ConcurrentDictionary<int, long> index_counts = new ConcurrentDictionary<int, long>();
 
                 // This only runs number_vcpu-1 threads; we need to save one for the us
-                var result = Parallel.For(1, number_virtual_cores, (i, state) =>
+                Parallel.For(1, number_virtual_cores, (i, state) =>
                 {
                     for (int x = 0; x < %%NUMBER_SOLVEPUZZLE%%; x++)
                     {
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
-                	Console.WriteLine("Starting {0} ...", x);
 
                         long[] solve_indexes = SolvePuzzle();
 
@@ -45,12 +45,12 @@ namespace EternityII_Solver
                         stopwatch.Stop();
                     }
                 });
-                Console.WriteLine("Result", result); // Just to remove the compilation warning
 
-                for (int i = 0; i < 257; i++)
-                {
-                    Console.WriteLine("{0} {1}", i, index_counts[i]); // This will only print valid numbers if you let the solver count how far you are.
-                }
+            }
+
+            for (int i = 0; i < 257; i++)
+            {
+                Console.Write("{0},", index_counts[i]); // This will only print valid numbers if you let the solver count how far you are.
             }
         }
 
