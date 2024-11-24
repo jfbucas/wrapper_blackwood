@@ -22,7 +22,7 @@ status_done = 2
 start_timestamp = str(time.time())
 
 
-serverPort = 443
+serverPort = 5001
 
 def make_results_folders():
 	for i,j,k in puzzle.edges_combo:
