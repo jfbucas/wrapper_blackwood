@@ -9,8 +9,6 @@ import server
 import client
 
 
-serverPort = 21080
-
 # ----- Parameters
 def run( role ):
 
@@ -21,10 +19,10 @@ def run( role ):
 	# Start
 
 	if role == "server":
-		server.server(serverPort)
+		server.server("", server.serverPort)
 	elif role == "client":
 		if len(sys.argv) > 2:
-			client.client(sys.argv[2], serverPort)
+			client.client(sys.argv[2], server.serverPort)
 		else:
 			run( "help" )
 

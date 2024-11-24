@@ -1,13 +1,34 @@
+import os
+import sys
+import subprocess
 
-#%%NUMBER_SOLVEPUZZLE%% # 5
-#%%NODE_COUNT_LIMIT%% # 70 Billions
-#%%HEURISTIC_ARRAY%% # 256 ints
-#%%MAX_HEURISTIC_INDEX%% # 160
-#%%HEURISTIC_SIDES%% # 13 16 10
-#%%BREAK_INDEXES_ALLOWED%% # 201, 206, 211, 216, 221, 225, 229, 233, 237, 239
-#%%NB_CORES%%
+import parameters
 
-jblackwood_heuristic_array_variations = [ 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 3, 3, 3, 2, 3, 3, 3, 3, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+def gen_template(filename, template_params):
 
-print(len(jblackwood_heuristic_array_variations))
+	new_file = filename.replace(".template","")
+	if new_file == filename:
+		print(filename, "is not a template")
+		return
+
+	with open(filename, 'r') as fin:
+		with open(new_file, 'w') as fout:
+			for line in fin:
+				for t in template_params.keys():
+					if "%%"+t+"%%" in line:
+						line = line.replace("%%"+t+"%%", str(template_params[t]))	
+				fout.write(line)
+
+
+
+def gen_templates(template_params):
+	gen_template("solver/Program.cs.template", template_params)
+	gen_template("solver/Util.cs.template", template_params)
+
+def compile():
+	#print("Compiling :: cd solver; mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
+	os.system("cd solver; mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
+ 
+def execute():
+	return subprocess.run(["mono", "solver/Program.exe"], stdout=subprocess.PIPE)
+

@@ -13,15 +13,15 @@ namespace EternityII_Solver
 
         static void Main()
         {
-            while (true) // Solve for Eternity.
-            {
-                var cores = "%%NB_CORES%%";
-                if (cores != "") {
-                    number_virtual_cores = Int32.Parse(cores);
-                } else {
-                    number_virtual_cores = Environment.ProcessorCount;
-                }
+            var cores = "%%NB_CORES%%";
+            if (cores != "") {
+                number_virtual_cores = Int32.Parse(cores);
+            } else {
+                number_virtual_cores = Environment.ProcessorCount;
+            }
 
+            for (int number_loops = 0; number_loops < %%NUMBER_LOOPS%%; number_loops++)
+	    {
                 Prepare_Pieces_And_Heuristics();
 
                 Console.WriteLine("Solving with {0} threads...", number_virtual_cores);
@@ -35,6 +35,7 @@ namespace EternityII_Solver
                     {
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
+                	Console.WriteLine("Starting {0} ...", x);
 
                         long[] solve_indexes = SolvePuzzle();
 
@@ -82,6 +83,7 @@ namespace EternityII_Solver
                 node_count++;
 
                 //solve_index_counts[solve_index] = solve_index_counts[solve_index] + 1;
+                solve_index_counts[solve_index]++;
 
                 if (solve_index > max_solve_index)
                 {
@@ -315,7 +317,6 @@ namespace EternityII_Solver
                 }
             }
 
-            heuristic_array = new List<int>() { %%HEURISTIC_ARRAY%% };
         }
 
         static RotatedPiece[][] corners;
@@ -333,7 +334,7 @@ namespace EternityII_Solver
 
         static SearchIndex[] board_search_sequence;
         static byte[] break_array;
-        static int[] heuristic_array;
+        static int[] heuristic_array = %%HEURISTIC_ARRAY%%;
         const int max_heuristic_index = %%MAX_HEURISTIC_INDEX%%;
     }
 }

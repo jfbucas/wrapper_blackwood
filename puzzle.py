@@ -1,7 +1,5 @@
 import re
 
-
-
 SIDE_EDGES = [ 1, 5, 9, 13, 17 ]
 MIDDLE_EDGES = [ 2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16, 18, 19, 20, 21, 22 ]
 
@@ -57,9 +55,7 @@ read_pieces()
 get_edges_combo()
 #print(len(pieces))
 #print(patterns_count)
-print(len(edges_combo))
-
-#11 to 160
+#print(len(edges_combo))
 
 
 

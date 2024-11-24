@@ -232,7 +232,7 @@ namespace EternityII_Solver
         }
 
         static async Task SendURI(Uri u, HttpContent c) {
-                var response = string.Empty;
+                //var response = string.Empty;
                 try {
                         using (var client = new HttpClient()) {
                                 HttpRequestMessage request = new HttpRequestMessage {
@@ -243,7 +243,8 @@ namespace EternityII_Solver
 
                                 HttpResponseMessage result = await client.SendAsync(request);
                                 if (result.IsSuccessStatusCode)        {
-                                        response = result.StatusCode.ToString();
+                                        // response = result.StatusCode.ToString();
+                                        result.StatusCode.ToString();
                                 }
                         }
                 }

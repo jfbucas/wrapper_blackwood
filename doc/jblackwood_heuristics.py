@@ -2,7 +2,7 @@
 heuristic_array_a = [0] * 256  # Equivalent to new int[256] in C#
 
 # Set max_heuristic_index
-max_heuristic_index = 152
+max_heuristic_index_a = 152
 
 # Populate the heuristic array
 for i in range(256):
@@ -14,7 +14,7 @@ for i in range(256):
         heuristic_array_a[i] = int(((i - 26) * 1.3333) + 32)
     elif i <= 96:
         heuristic_array_a[i] = int(((i - 56) * 0.65) + 72)
-    elif i <= max_heuristic_index:
+    elif i <= max_heuristic_index_a:
         heuristic_array_a[i] = int(((i - 96) / 2.9473) + 98)
 
 
@@ -23,7 +23,7 @@ for i in range(256):
 heuristic_array_b = [0] * 256  # Equivalent to new int[256] in C#
 
 # Set max_heuristic_index
-max_heuristic_index = 152
+max_heuristic_index_b = 152
 
 # Populate the heuristic array
 for i in range(256):
@@ -35,7 +35,7 @@ for i in range(256):
         heuristic_array_b[i] = int(((i - 26) * 1.43333) + 27)
     elif i <= 96:
         heuristic_array_b[i] = int(((i - 56) * 0.70) + 70)
-    elif i <= max_heuristic_index:
+    elif i <= max_heuristic_index_b:
         heuristic_array_b[i] = int(((i - 96) / 2.9473) + 98)
 
 
@@ -44,7 +44,7 @@ for i in range(256):
 heuristic_array_c = [0] * 256  # Equivalent to new int[256] in C#
 
 # Define max_heuristic_index (ensure this is set appropriately elsewhere in your code)
-max_heuristic_index = 156  # Example value; adjust as needed
+max_heuristic_index_c = 156  # Example value; adjust as needed
 
 # Populate the heuristic array
 for i in range(256):
@@ -56,7 +56,7 @@ for i in range(256):
         heuristic_array_c[i] = int(((i - 26) * 1.43333) + 31)
     elif i <= 96:
         heuristic_array_c[i] = int(((i - 56) * 0.65) + 74)
-    elif i <= max_heuristic_index:
+    elif i <= max_heuristic_index_c:
         heuristic_array_c[i] = int(((i - 96) / 3.75) + 100)
 
 
@@ -78,13 +78,16 @@ for i in range(256):
         heuristic_array_z[i] = int(((i - 56) * 0.9) + 71)
     elif i <= 102:
         heuristic_array_z[i] = int(((i - 76) * 0.6538) + 89)
-    elif i <= max_heuristic_index:
+    elif i <= max_heuristic_index_z:
         heuristic_array_z[i] = int(((i - 102) / 4.4615) + 106)
 
 for i in range(256):
 	print(i, heuristic_array_a[i], heuristic_array_b[i], heuristic_array_c[i], heuristic_array_z[i])
 
 
+for i in range(0,256):
+	print(heuristic_array_z[i], end=", ")
+print()
 for i in range(1,256):
 	print(heuristic_array_z[i]-heuristic_array_z[i-1], end=", ")
 print()
