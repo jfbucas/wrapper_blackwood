@@ -5,9 +5,11 @@ import socket
 
 import parameters
 
+SOLVERPATH="solver"
+
 def get_path():
 	hostname = socket.gethostname()
-	return "solver/"+hostname
+	return SOLVERPATH+"/"+hostname
 
 def gen_template(filename, template_params):
 	# Create a subfolder for that machine
@@ -23,7 +25,7 @@ def gen_template(filename, template_params):
 		print(filename, "is not a template")
 		return
 
-	with open(filename, 'r') as fin:
+	with open(SOLVERPATH+"/"+filename, 'r') as fin:
 		with open(new_file, 'w') as fout:
 			for line in fin:
 				for t in template_params.keys():
@@ -34,9 +36,9 @@ def gen_template(filename, template_params):
 
 
 def gen_templates(template_params):
-	gen_template("solver/Program.cs.template", template_params)
-	gen_template("solver/Util.cs.template", template_params)
-	gen_template("solver/Structs.cs.template", template_params)
+	gen_template("Program.cs.template", template_params)
+	gen_template("Util.cs.template", template_params)
+	gen_template("Structs.cs.template", template_params)
 
 def compile():
 	path = get_path()
