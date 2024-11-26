@@ -7,6 +7,7 @@ import time
 import threading
 from multiprocessing import Queue
 import subprocess
+import random
 
 import puzzle
 import templating
@@ -45,8 +46,10 @@ def get_next_job():
 			print(path,"doesn't exists")
 
 	next_job = sorted(counting.items(), key=lambda x:x[1])
+	min_count= next_job[0][1]
+	next_job = [ x for x in next_job if x[1] == min_count]
+	random.shuffle(next_job)
 	return next_job[0]
-
 
 def server(hostName, serverPort):
 
