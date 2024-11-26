@@ -91,7 +91,8 @@ class MyServer(BaseHTTPRequestHandler):
 		try:
 			job_result = json.loads(post_data)
 
-			print(job_result)
+			print("Receiving", job_result["JOBGROUP"])
+			#print(job_result)
 
 			# Write to disk
 			job_file = open(job_result["job_path"]+"/"+str(time.time())+".json", "wb")	
