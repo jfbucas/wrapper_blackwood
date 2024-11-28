@@ -7,6 +7,7 @@ import time
 # Local Classes
 import server
 import client
+import analyse
 
 
 # ----- Parameters
@@ -28,7 +29,7 @@ def run( role ):
 
 	elif role == "help":
 		print( "+ Roles")
-		print( " [--server|-s] | hostname | [-h|--help]")
+		print( " [--server|-s] | hostname | [--analyse|-a] | [-h|--help]")
 		print( )
 	else:
 		print( "ERROR: unknown parameter:", role )
@@ -47,6 +48,8 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		a = sys.argv[1]
 		if a.startswith("--server") or a.startswith("-s"):
+			role = "server"
+		elif a.startswith("--analyse") or a.startswith("-a"):
 			role = "server"
 		elif a.startswith("-h") or a.startswith("--help"):
 			role = "help"

@@ -30,7 +30,7 @@ default_template_params = {
 	"MAX_HEURISTIC_INDEX"   : 160,
 	"HEURISTIC_ARRAY"       : str(get_heuristic_array_from_variations( jblackwood_heuristic_array_variations)).replace("[","{").replace("]","}"),
 	"BREAK_INDEXES_ALLOWED" : "201, 206, 211, 216, 221, 225, 229, 233, 237, 239",
-	"NB_CORES"              : 2, # 2 or more
+	"NB_CORES"              : 1, # 1 or more
 	"NUMBER_SOLVEPUZZLE"    : 5,
 	"NUMBER_LOOPS"          : 2,
 }

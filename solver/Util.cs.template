@@ -250,8 +250,8 @@ namespace EternityII_Solver
                 }
                 catch (Exception exception)
                 {
-                        Console.WriteLine("CAUGHT EXCEPTION:");
-                        Console.WriteLine(exception);
+                        Console.Error.WriteLine("CAUGHT EXCEPTION:");
+                        Console.Error.WriteLine(exception);
                 }
                 //return response;
         }
@@ -348,7 +348,7 @@ namespace EternityII_Solver
                     t.Wait();
 
             } else {
-                   Console.WriteLine("Define $HOOK environment variable to receive notifications");
+                   Console.Error.WriteLine("Define $HOOK environment variable to receive notifications");
             }
         }
 

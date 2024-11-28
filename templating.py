@@ -6,14 +6,16 @@ import socket
 import parameters
 
 SOLVERPATH="solver"
+#GENERATEDPATH="generated"
 
-def get_path():
+def get_path(thread_number=None):
 	hostname = socket.gethostname()
-	return SOLVERPATH+"/"+hostname
+	if thread_number != None:
+		return SOLVERPATH+"/"+hostname+"_"+str(thread_number)
 
-def gen_template(filename, template_params):
+def gen_template(filename, template_params, thread_number=None):
 	# Create a subfolder for that machine
-	path = get_path()
+	path = get_path(thread_number)
 	if not os.path.exists( path ):
 		try:
 			os.makedirs( path )
@@ -35,17 +37,17 @@ def gen_template(filename, template_params):
 
 
 
-def gen_templates(template_params):
-	gen_template("Program.cs.template", template_params)
-	gen_template("Util.cs.template", template_params)
-	gen_template("Structs.cs.template", template_params)
+def gen_templates(template_params, thread_number):
+	gen_template("Program.cs.template", template_params, thread_number)
+	gen_template("Util.cs.template", template_params, thread_number)
+	gen_template("Structs.cs.template", template_params, thread_number)
 
-def compile():
-	path = get_path()
+def compile(thread_number):
+	path = get_path(thread_number)
 	#print("Compiling :: cd solver; mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
 	os.system("cd "+path+"; mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
  
-def execute():
-	path = get_path()
-	return subprocess.run(["mono", path+"/Program.exe"], stdout=subprocess.PIPE)
+def execute(thread_number):
+	path = get_path(thread_number)
+	return subprocess.run(["nice", "-n", "19", "mono", path+"/Program.exe"], stdout=subprocess.PIPE)
 
