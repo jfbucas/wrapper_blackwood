@@ -132,6 +132,14 @@ a16,16 0 1,1 -8,32"
 fill="#f38622" stroke="#c1732d" stroke-width="1"  />
 </svg>
 """
+	minimum = 256
+	for i in stats_avg:
+		for j in i:
+			for k in j:
+				if k > 0 and k < minimum:
+					minimum=k
+
+	print("minimum=", minimum)
 	o = ""
 	#for i in stats_max:
 	for i in stats_avg:
@@ -147,8 +155,8 @@ fill="#f38622" stroke="#c1732d" stroke-width="1"  />
 			o += "<tr>"
 			o += "<td>"+str(next(m))+"</td>"
 			for k in j:
-				c = k if k>0 else ""
-				r,g,b = palette.palette[k] 
+				c = (k-minimum)*(256/(256-minimum)) if k>0 else 0
+				r,g,b = palette.palette[int(c)] 
 				o += "<td style='background-color:rgb("+str(r)+","+str(g)+","+str(b)+");'>"+str( k if k>0 else "")+"</td>"
 			o += "</tr>\n"
 		o += "</table>\n"
