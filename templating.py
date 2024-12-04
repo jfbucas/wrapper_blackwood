@@ -45,7 +45,7 @@ def gen_templates(template_params, thread_number):
 def compile(thread_number):
 	path = get_path(thread_number)
 	#print("Compiling :: cd solver; mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
-	os.system("cd "+path+"; mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
+	os.system("cd "+path+"; nice -n 19 mcs -unsafe -r:System.Net.Http  Program.cs Util.cs Structs.cs")
  
 def execute(thread_number):
 	path = get_path(thread_number)
