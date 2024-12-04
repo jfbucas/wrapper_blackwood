@@ -31,7 +31,7 @@ def client( host, serverPort ):
 
 	# Leave the CPU alone in case of other users
 	lca_thread = lca.Leave_CPU_Alone_Thread(period=2)
-	lca_thread.run()
+	lca_thread.start()
 
 	# Start the jobs
 	job_threads = []
