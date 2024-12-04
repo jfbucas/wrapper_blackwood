@@ -89,9 +89,9 @@ class Leave_CPU_Alone_Thread(threading.Thread):
 
 			one_process = self.lca.is_one_process_running()
 			if one_process:
-				os.system("killall -SIGSTOP mono")
+				os.system("killall --quiet -SIGSTOP mono")
 			else:
-				os.system("killall -SIGCONT mono")
+				os.system("killall --quiet -SIGCONT mono")
 
 			time.sleep(self.period)
 		
