@@ -87,12 +87,11 @@ class Leave_CPU_Alone_Thread(threading.Thread):
 			# 1 means it has been activated
 			# 2 means it has been activated/forced manually
 
-			if self.libblackwood.LibExt.getPause(self.libblackwood.cb) == 0:
-				one_process = self.lca.is_one_process_running()
-				if one_process:
-					os.system("killall -SIGSTOP mono")
-				else:
-					os.system("killall -SIGCONT mono")
+			one_process = self.lca.is_one_process_running()
+			if one_process:
+				os.system("killall -SIGSTOP mono")
+			else:
+				os.system("killall -SIGCONT mono")
 
 			time.sleep(self.period)
 		
