@@ -9,6 +9,7 @@ import subprocess
 import socket
 
 import templating
+import lca
 
 
 # Start a client
@@ -28,6 +29,10 @@ def client( host, serverPort ):
 	if CORES <= 0:
 		CORES=1
 
+	# Leave the CPU alone in case of other users
+	lca_thread = lca.Leave_CPU_Alone_Thread(period=2)
+	lca_thread.run()
+
 	# Start the jobs
 	job_threads = []
 	for c in range(CORES):
@@ -43,6 +48,8 @@ def client( host, serverPort ):
 		for j in job_threads:
 			j.stop = True
 
+	# Stop LCA
+	lca_thread.stop_lca_thread = True
 
 
 # A simple thread for multicore support

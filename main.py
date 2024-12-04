@@ -27,6 +27,13 @@ def run( role ):
 		else:
 			run( "help" )
 
+	elif role == "analyse":
+		analyse.count()
+		ar = analyse.load_results()
+		#analyse.find_fastest(ar)
+		analyse.machines_stats(ar)
+		#analyse.get_stats_html()
+
 	elif role == "help":
 		print( "+ Roles")
 		print( " [--server|-s] | hostname | [--analyse|-a] | [-h|--help]")
@@ -50,7 +57,7 @@ if __name__ == "__main__":
 		if a.startswith("--server") or a.startswith("-s"):
 			role = "server"
 		elif a.startswith("--analyse") or a.startswith("-a"):
-			role = "server"
+			role = "analyse"
 		elif a.startswith("-h") or a.startswith("--help"):
 			role = "help"
 	

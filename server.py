@@ -12,6 +12,7 @@ import random
 import puzzle
 import templating
 import parameters
+import analyse
 
 # Status codes
 status_eror = -2
@@ -24,6 +25,8 @@ start_timestamp = str(time.time())
 
 
 serverPort = 5001
+if os.environ.get('PORT') != None:
+	serverPort = int(os.environ.get('PORT'))
 
 def make_results_folders():
 	for i,j,k in puzzle.edges_combo:
@@ -69,20 +72,35 @@ def server(hostName, serverPort):
 
 class MyServer(BaseHTTPRequestHandler):
 	def do_GET(self):
-		next_job = get_next_job()
 
-		if next_job != None:
+		#print(self.__dict__)
+
+		if self.path == "/":
+			# Get next job
+			next_job = get_next_job()
+
+			if next_job != None:
+				self.send_response(200)
+				self.send_header('Content-Type', 'application/json')
+				self.end_headers()
+				print("Sending job", next_job)
+				job_params = parameters.get_next_job_params(next_job)
+				job_params["job_path"] = next_job[0]
+				self.wfile.write(bytes(json.dumps( job_params ), "utf-8"))
+			else:
+				self.send_response(404)
+				self.send_header('Content-Type', 'application/json')
+				self.end_headers()
+
+		elif self.path == "/stats.html":
+
+			# Display some statistics
 			self.send_response(200)
-			self.send_header('Content-Type', 'application/json')
+			self.send_header('Content-Type', 'text/html')
 			self.end_headers()
-			print("Sending job", next_job)
-			job_params = parameters.get_next_job_params(next_job)
-			job_params["job_path"] = next_job[0]
-			self.wfile.write(bytes(json.dumps( job_params ), "utf-8"))
-		else:
-			self.send_response(404)
-			self.send_header('Content-Type', 'application/json')
-			self.end_headers()
+			print("Providing Stats")
+			self.wfile.write(bytes(analyse.get_stats_html(), "utf-8"))
+			
 
 	def do_POST(self):
 

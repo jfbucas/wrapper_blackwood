@@ -7,6 +7,9 @@ pieces = {}
 patterns_count = [0] * (len(SIDE_EDGES + MIDDLE_EDGES)+1)
 edges_combo = []
 
+def path_to_edge_combo(path):
+	return map(int, path.replace("results/","").split("-"))
+
 def read_pieces():
 
 	with open('solver/Util.cs.template', 'r') as file:
@@ -41,7 +44,7 @@ def get_edges_combo():
 		for j in MIDDLE_EDGES:
 			for k in MIDDLE_EDGES:
 				if j != k:
-					if (i, k,j ) not in edges_combo:
+					if (i, k, j) not in edges_combo:
 						edges_combo.append( (i,j,k) )
 
 """
