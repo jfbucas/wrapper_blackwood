@@ -28,6 +28,8 @@ serverPort = 5001
 if os.environ.get('PORT') != None:
 	serverPort = int(os.environ.get('PORT'))
 
+job_list = []
+
 def make_results_folders():
 	for i,j,k in puzzle.edges_combo:
 		path = "results/"+str(i)+"-"+str(j)+"-"+str(k)
@@ -37,22 +39,26 @@ def make_results_folders():
 			except OSError as error:
 				print("Couldn't create", path)
 
+
+def prepare_next_jobs():
+	
+	all_results = analyse.load_results()
+	counting = analyse.count(all_results)
+
+	j = []
+	for path, count in sorted(counting.items(), key=lambda x:x[1]):
+		j.append( (path,count) )
+	
+	# We keep only the first 10% lowest
+	return j[0:len(j)//10] * 10
+
+
 def get_next_job():
+	global job_list
+	if len(job_list) == 0:
+		job_list = prepare_next_jobs()
 
-	# Get the folder with the least amount of samples
-	counting = {}
-	for i,j,k in puzzle.edges_combo:
-		path = "results/"+str(i)+"-"+str(j)+"-"+str(k)
-		try:
-			counting[path] = len([name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))])
-		except OSError as error:
-			print(path,"doesn't exists")
-
-	next_job = sorted(counting.items(), key=lambda x:x[1])
-	min_count= next_job[0][1]
-	next_job = [ x for x in next_job if x[1] == min_count]
-	random.shuffle(next_job)
-	return next_job[0]
+	return job_list.pop(0)
 
 def server(hostName, serverPort):
 

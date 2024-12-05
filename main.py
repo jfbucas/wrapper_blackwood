@@ -28,8 +28,8 @@ def run( role ):
 			run( "help" )
 
 	elif role == "analyse":
-		analyse.count()
 		ar = analyse.load_results()
+		analyse.count(ar, display=True)
 		#analyse.find_fastest(ar)
 		analyse.machines_stats(ar)
 		#analyse.get_stats_html()

@@ -10,24 +10,6 @@ import palette
 #	a2=numpy.array(a2)
 #	return numpy.add(a1,a2)
 
-def count():
-
-	# Get the folder with the least amount of samples
-	counting = {}
-	for i,j,k in puzzle.edges_combo:
-		path = "results/"+str(i)+"-"+str(j)+"-"+str(k)
-		try:
-			counting[path] = len([name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))])
-		except OSError as error:
-			print(path,"doesn't exists")
-
-	for path, count in sorted(counting.items(), key=lambda x:x[1]):
-		print(path, count)
-
-	total = sum([ x[1] for x in counting.items() ])
-	print(total)
-	return total
-
 def load_results():
 
 	# Get the folder with the least amount of samples
@@ -49,6 +31,22 @@ def load_results():
 			print(path,"doesn't exists")
 
 	return all_results
+
+def count(all_results, display=False):
+
+	counting={}
+	for path in all_results.keys():
+		counting[path] = len(all_results[path])
+
+	if display:
+		for path, count in sorted(counting.items(), key=lambda x:x[1]):
+			print(path, count)
+
+		total = sum([ x[1] for x in counting.items() ])
+		print(total)
+
+	return counting
+
 
 def find_fastest(all_results):
 
