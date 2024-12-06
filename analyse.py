@@ -122,11 +122,18 @@ def get_stats_html():
 
 		#print(i, j, k, "Max: "+str(max(zeroes)), "Avg: "+str(sum(zeroes)//len(zeroes)), "Samples: "+str(len(zeroes)))
 
+	side_motifs = {}
 	middle_motifs_top = {}
 	middle_motifs_left = {}
 	middle_motifs_right = {}
 	middle_motifs_bottom = {}
 	for m in motifs.motifs.keys():
+		side_motifs[m]  = """<svg height="16" width="32" transform="scale(0.25), rotate(-90), translate(-16,-120)" overflow="visible">"""
+		side_motifs[m] += motifs.motifs[m]
+		side_motifs[m] += """</svg>"""
+		side_motifs[m] += """<svg height="16" width="32" transform="scale(0.25), rotate(90), translate(-16,-120)" overflow="visible">"""
+		side_motifs[m] += motifs.motifs[m]
+		side_motifs[m] += """</svg>"""
 		middle_motifs_top[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(-90), translate(-112,-120)" overflow="visible">"""
 		middle_motifs_top[m] += motifs.motifs[m]
 		middle_motifs_top[m] += """</svg>"""
@@ -156,33 +163,36 @@ def get_stats_html():
 	o = ""
 	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center;}"
 	o += "table {border-spacing:0px; margin:auto;}"
-	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:10px; }"
+	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:10px; "
+	o += "color: white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }"
 	o += ".ontop {position:relative; z-index:5} </style>\n"
 
-	o += "<table>\n"
-
-	o += "<tr><th>\</th>"
-	for m in range(23):
-		o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
-	o += "<th>/</th>"
-	o += "</tr>\n"
-	o += "</table>\n"
+	#o += "<table>\n"
+	#o += "<tr><th>\</th>"
+	#for m in range(23):
+	#	o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
+	#o += "<th>/</th>"
+	#o += "</tr>\n"
+	#o += "</table>\n"
 
 	#for i in stats_max:
+	mi=0
 	for i in stats_avg:
+		o += "<br/>\n"
 		o += "<table>\n"
+		mmi = str(side_motifs[puzzle.SIDE_EDGES[mi]])
 
-		o += "<tr><th>\</th>"
+		o += "<tr><th>"+mmi+"</th>"
 		for m in puzzle.MIDDLE_EDGES :
-			o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
-		o += "<th>/</th>"
+			o += "<th>"+str(middle_motifs_top[m])+"</th>"
+		o += "<th>"+mmi+"</th>"
 		o += "</tr>\n"
 
 		m = iter(puzzle.MIDDLE_EDGES)
 		for j in i:
 			mm = next(m)
 			o += "<tr>"
-			o += "<td>"+str(m)+str(middle_motifs_left[mm])+"</td>"
+			o += "<td>"+str(middle_motifs_left[mm])+"</td>"
 			for k in j:
 				c = (k-minimum)*(256/(256-minimum)) if k>0 else 0
 				a = 255
@@ -193,13 +203,17 @@ def get_stats_html():
 			o += "<td>"+str(middle_motifs_right[mm])+"</td>"
 			o += "</tr>\n"
 
-		o += "<tr><th>/</th>"
+		o += "<tr><th>"+mmi+"</th>"
 		for m in puzzle.MIDDLE_EDGES :
 			o += "<th>"+str(middle_motifs_bottom[m])+"</th>"
-		o += "<th>\</th>"
+		o += "<th>"+mmi+"</th>"
 		o += "</tr>\n"
 
 		o += "</table>\n"
+		o += "<br/>\n"
+		o += "<br/>\n"
+		mi += 1
+		
 
 	return o
 
