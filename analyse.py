@@ -1,9 +1,11 @@
 import os
 import json
 import numpy
+import math
 
 import puzzle
 import palette
+import motifs
 
 #def array_add(a1,a2):
 #	a1=numpy.array(a1)
@@ -27,6 +29,8 @@ def load_results():
 						all_results[path].append(data)
 					else:
 						print("Incorrect data:", fn, data)
+				if len(all_results[path]) > 10:
+					break
 		except OSError as error:
 			print(path,"doesn't exists")
 
@@ -118,18 +122,16 @@ def get_stats_html():
 
 		#print(i, j, k, "Max: "+str(max(zeroes)), "Avg: "+str(sum(zeroes)//len(zeroes)), "Samples: "+str(len(zeroes)))
 
-	m0 = """
-<svg height="16" width="32" transform="scale(0.125), rotate(-90), translate(0,-128)" overflow="visible">
-<polygon points="0,0  128,128   0,256" style="fill:#26638e;stroke:black;stroke-width:1" />
-<path d="M0,56
-a16,16 0 1,1 8,32 v 32 
-h 32
-a16,16 0 1,1 0,16 h -32
-v 32
-a16,16 0 1,1 -8,32"
-fill="#f38622" stroke="#c1732d" stroke-width="1"  />
-</svg>
-"""
+	edges_motifs_top = {}
+	edges_motifs_left = {}
+	for m in motifs.motifs.keys():
+		edges_motifs_top[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(-90), translate(-112,-120)" overflow="visible">"""
+		edges_motifs_top[m] += motifs.motifs[m]
+		edges_motifs_top[m] += """</svg>"""
+		edges_motifs_left[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(180), translate(-112,-120)" overflow="visible">"""
+		edges_motifs_left[m] += motifs.motifs[m]
+		edges_motifs_left[m] += """</svg>"""
+
 	minimum = 256
 	for i in stats_avg:
 		for j in i:
@@ -137,25 +139,37 @@ fill="#f38622" stroke="#c1732d" stroke-width="1"  />
 				if k > 0 and k < minimum:
 					minimum=k
 
+	stats_avg_ln = numpy.log1p(stats_avg-minimum)
+	print(numpy.nanmax(stats_avg_ln))
+	stats_avg_ln = stats_avg_ln*(numpy.nanmax(stats_avg_ln)/256)
+	print(stats_avg_ln)
+
 	print("minimum=", minimum)
 	o = ""
+	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444;}"
+	o += "table {border-spacing:0px;}"
+	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:10px; }"
+	o += ".ontop {position:relative; z-index:5} </style>\n"
 	#for i in stats_max:
 	for i in stats_avg:
 		o += "<table>\n"
 
 		o += "<tr><th>\</th>"
 		for m in puzzle.MIDDLE_EDGES :
-			o += "<th>"+str(m0)+"</th>"
+			o += "<th>"+str(edges_motifs_top[m])+"</th>"
 		o += "</tr>\n"
 
 		m = iter(puzzle.MIDDLE_EDGES)
 		for j in i:
 			o += "<tr>"
-			o += "<td>"+str(next(m))+"</td>"
+			o += "<td>"+str(edges_motifs_left[next(m)])+"</td>"
 			for k in j:
 				c = (k-minimum)*(256/(256-minimum)) if k>0 else 0
+				a = 255
 				r,g,b = palette.palette[int(c)] 
-				o += "<td style='background-color:rgb("+str(r)+","+str(g)+","+str(b)+");'>"+str( k if k>0 else "")+"</td>"
+				if c == 0 and k == 0:
+					r,g,b,a = 255,255,255,0
+				o += "<td class='ontop' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"+str( k if k>0 else "")+"</td>"
 			o += "</tr>\n"
 		o += "</table>\n"
 
