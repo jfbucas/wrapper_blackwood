@@ -122,15 +122,23 @@ def get_stats_html():
 
 		#print(i, j, k, "Max: "+str(max(zeroes)), "Avg: "+str(sum(zeroes)//len(zeroes)), "Samples: "+str(len(zeroes)))
 
-	edges_motifs_top = {}
-	edges_motifs_left = {}
+	middle_motifs_top = {}
+	middle_motifs_left = {}
+	middle_motifs_right = {}
+	middle_motifs_bottom = {}
 	for m in motifs.motifs.keys():
-		edges_motifs_top[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(-90), translate(-112,-120)" overflow="visible">"""
-		edges_motifs_top[m] += motifs.motifs[m]
-		edges_motifs_top[m] += """</svg>"""
-		edges_motifs_left[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(180), translate(-112,-120)" overflow="visible">"""
-		edges_motifs_left[m] += motifs.motifs[m]
-		edges_motifs_left[m] += """</svg>"""
+		middle_motifs_top[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(-90), translate(-112,-120)" overflow="visible">"""
+		middle_motifs_top[m] += motifs.motifs[m]
+		middle_motifs_top[m] += """</svg>"""
+		middle_motifs_left[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(180), translate(-112,-120)" overflow="visible">"""
+		middle_motifs_left[m] += motifs.motifs[m]
+		middle_motifs_left[m] += """</svg>"""
+		middle_motifs_right[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(0), translate(-112,-120)" overflow="visible">"""
+		middle_motifs_right[m] += motifs.motifs[m]
+		middle_motifs_right[m] += """</svg>"""
+		middle_motifs_bottom[m]  = """<svg height="16" width="32" transform="scale(0.125), rotate(90), translate(-112,-120)" overflow="visible">"""
+		middle_motifs_bottom[m] += motifs.motifs[m]
+		middle_motifs_bottom[m] += """</svg>"""
 
 	minimum = 256
 	for i in stats_avg:
@@ -146,31 +154,51 @@ def get_stats_html():
 
 	print("minimum=", minimum)
 	o = ""
-	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444;}"
-	o += "table {border-spacing:0px;}"
+	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center;}"
+	o += "table {border-spacing:0px; margin:auto;}"
 	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:10px; }"
 	o += ".ontop {position:relative; z-index:5} </style>\n"
+
+	o += "<table>\n"
+
+	o += "<tr><th>\</th>"
+	for m in range(23):
+		o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
+	o += "<th>/</th>"
+	o += "</tr>\n"
+	o += "</table>\n"
+
 	#for i in stats_max:
 	for i in stats_avg:
 		o += "<table>\n"
 
 		o += "<tr><th>\</th>"
 		for m in puzzle.MIDDLE_EDGES :
-			o += "<th>"+str(edges_motifs_top[m])+"</th>"
+			o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
+		o += "<th>/</th>"
 		o += "</tr>\n"
 
 		m = iter(puzzle.MIDDLE_EDGES)
 		for j in i:
+			mm = next(m)
 			o += "<tr>"
-			o += "<td>"+str(edges_motifs_left[next(m)])+"</td>"
+			o += "<td>"+str(m)+str(middle_motifs_left[mm])+"</td>"
 			for k in j:
 				c = (k-minimum)*(256/(256-minimum)) if k>0 else 0
 				a = 255
 				r,g,b = palette.palette[int(c)] 
 				if c == 0 and k == 0:
-					r,g,b,a = 255,255,255,0
+					r,g,b,a = 0,0,0,0.2
 				o += "<td class='ontop' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"+str( k if k>0 else "")+"</td>"
+			o += "<td>"+str(middle_motifs_right[mm])+"</td>"
 			o += "</tr>\n"
+
+		o += "<tr><th>/</th>"
+		for m in puzzle.MIDDLE_EDGES :
+			o += "<th>"+str(middle_motifs_bottom[m])+"</th>"
+		o += "<th>\</th>"
+		o += "</tr>\n"
+
 		o += "</table>\n"
 
 	return o
