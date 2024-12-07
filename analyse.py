@@ -29,8 +29,8 @@ def load_results():
 						all_results[path].append(data)
 					else:
 						print("Incorrect data:", fn, data)
-				if len(all_results[path]) > 10:
-					break
+				#if len(all_results[path]) > 4:
+				#	break
 		except OSError as error:
 			print(path,"doesn't exists")
 
@@ -100,7 +100,7 @@ def get_stats_html():
 	index_counts = get_index_counts(all_results)
 
 	stats_max     = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) ), dtype=int)
-	stats_avg     = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) ), dtype=int)
+	stats_avg     = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) )) #, dtype=int)
 	stats_samples = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) ), dtype=int)
 
 	for path in index_counts.keys():
@@ -117,7 +117,7 @@ def get_stats_html():
 		j = puzzle.MIDDLE_EDGES.index(j)
 		k = puzzle.MIDDLE_EDGES.index(k)
 		stats_max[i,j,k] = max(zeroes)
-		stats_avg[i,j,k] = sum(zeroes)//len(zeroes)
+		stats_avg[i,j,k] = sum(zeroes)/len(zeroes)
 		stats_samples[i,j,k] = len(zeroes)
 
 		#print(i, j, k, "Max: "+str(max(zeroes)), "Avg: "+str(sum(zeroes)//len(zeroes)), "Samples: "+str(len(zeroes)))
@@ -153,19 +153,24 @@ def get_stats_html():
 			for k in j:
 				if k > 0 and k < minimum:
 					minimum=k
+	#print("minimum=", minimum)
 
-	stats_avg_ln = numpy.log1p(stats_avg-minimum)
-	print(numpy.nanmax(stats_avg_ln))
-	stats_avg_ln = stats_avg_ln*(numpy.nanmax(stats_avg_ln)/256)
-	print(stats_avg_ln)
+	# Use logarithm for the colors to highlight the best edge_combo
+	#color_ln = list(reversed([ int(256-(math.log(i+1)/math.log(256-minimum))*256) for i in range(256-minimum) ]))
+	#color_ln = list(reversed([ int(256-(math.log(i+1)/math.log(256))*256) for i in range(256) ]))
 
-	print("minimum=", minimum)
 	o = ""
-	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center;}"
+	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:150%;}"
 	o += "table {border-spacing:0px; margin:auto;}"
-	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:10px; "
+	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:7px; "
 	o += "color: white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }"
-	o += ".ontop {position:relative; z-index:5} </style>\n"
+	o += ".ontop {position:relative; z-index:5}"
+	
+	# Mark the two known 470
+	o += "#td35  {box-shadow: inset 0px 0px 0px 2px #00f;}"
+	o += "#td482 {box-shadow: inset 0px 0px 0px 2px #00f;}"
+
+	o += "</style>\n"
 
 	#o += "<table>\n"
 	#o += "<tr><th>\</th>"
@@ -176,16 +181,25 @@ def get_stats_html():
 	#o += "</table>\n"
 
 	#for i in stats_max:
+
+	stats_avg[0] += numpy.rot90(numpy.fliplr(stats_avg[1]))
+	stats_avg[2] += numpy.rot90(numpy.fliplr(stats_avg[3]))
+
+
+	o += "<br/>\n"
+	o += "<br/>\n"
+
 	mi=0
-	for i in stats_avg:
-		o += "<br/>\n"
+	td=0
+	for i in [ stats_avg[0], stats_avg[2], stats_avg[4] ]:
+
 		o += "<table>\n"
 		mmi = str(side_motifs[puzzle.SIDE_EDGES[mi]])
 
-		o += "<tr><th>"+mmi+"</th>"
+		o += "<tr><th>"+""+"</th>"
 		for m in puzzle.MIDDLE_EDGES :
 			o += "<th>"+str(middle_motifs_top[m])+"</th>"
-		o += "<th>"+mmi+"</th>"
+		o += "<th>"+(mmi if mi%2==0 else "")+"</th>"
 		o += "</tr>\n"
 
 		m = iter(puzzle.MIDDLE_EDGES)
@@ -194,25 +208,28 @@ def get_stats_html():
 			o += "<tr>"
 			o += "<td>"+str(middle_motifs_left[mm])+"</td>"
 			for k in j:
-				c = (k-minimum)*(256/(256-minimum)) if k>0 else 0
-				a = 255
-				r,g,b = palette.palette[int(c)] 
-				if c == 0 and k == 0:
-					r,g,b,a = 0,0,0,0.2
-				o += "<td class='ontop' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"+str( k if k>0 else "")+"</td>"
+				c = ((k-minimum)/(256-minimum))*256 if k>0 else 0
+				r,g,b,a = palette.palette[int(c)] 
+				r,g,b,a = int(r*255),int(g*255),int(b*255),int(a*255)
+				if k == 0:
+					r,g,b,a = 0,0,0,0.0
+				o += "<td id='td"+str(td)+"' class='ontop' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"+str( "{:.2f}".format(k) if k>0 else "")+"</td>"
+				td+=1
 			o += "<td>"+str(middle_motifs_right[mm])+"</td>"
 			o += "</tr>\n"
 
+		mmi = str(side_motifs[puzzle.SIDE_EDGES[mi+1]]) if mi+1 < len(puzzle.SIDE_EDGES) else ""
 		o += "<tr><th>"+mmi+"</th>"
 		for m in puzzle.MIDDLE_EDGES :
 			o += "<th>"+str(middle_motifs_bottom[m])+"</th>"
-		o += "<th>"+mmi+"</th>"
+		o += "<th>"+""+"</th>"
 		o += "</tr>\n"
 
 		o += "</table>\n"
+
 		o += "<br/>\n"
 		o += "<br/>\n"
-		mi += 1
+		mi += 2
 		
 
 	return o
