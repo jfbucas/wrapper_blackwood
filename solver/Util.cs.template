@@ -333,10 +333,10 @@ namespace EternityII_Solver
             string filename = maxSolveIndex.ToString() + "_" + g.Value.ToString() + "_" + rand.Next(0, 1000000).ToString() + ".txt";
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EternitySolutions");
             Directory.CreateDirectory(path);
-            System.IO.File.WriteAllText(Path.Combine(path, filename), board_string);
+            System.IO.File.WriteAllText(Path.Combine(path, filename), board_string+"\n");
 
-            string hook_url = Environment.GetEnvironmentVariable("HOOK");
-            if (hook_url != null) {
+            string hook_url = %%HOOK%%;
+            if (hook_url != "") {
                     System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
                     Uri u = new Uri(hook_url);
                     string board_url = "https://e2.bucas.name/#puzzle=Joshua_Blackwood&board_w=16&board_h=16&board_edges=" + url + "&motifs_order=jblackwood";
@@ -347,8 +347,6 @@ namespace EternityII_Solver
                     var t = Task.Run(() => SendURI(u, c));
                     t.Wait();
 
-            } else {
-                   Console.Error.WriteLine("Define $HOOK environment variable to receive notifications");
             }
         }
 
