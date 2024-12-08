@@ -335,7 +335,7 @@ namespace EternityII_Solver
             Directory.CreateDirectory(path);
             System.IO.File.WriteAllText(Path.Combine(path, filename), board_string+"\n");
 
-            string hook_url = %%HOOK%%;
+            string hook_url = "%%HOOK%%";
             if (hook_url != "") {
                     System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
                     Uri u = new Uri(hook_url);
