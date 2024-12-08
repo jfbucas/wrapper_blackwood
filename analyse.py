@@ -163,35 +163,31 @@ def get_stats_html():
 	#color_ln = list(reversed([ int(256-(math.log(i+1)/math.log(256))*256) for i in range(256) ]))
 
 	o = ""
-	o += "<style> body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:150%;}"
+	o += "<style>"
+	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:150%;}"
 	o += "table {border-spacing:0px; margin:auto;}"
 	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:7px; "
 	o += "color: white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }"
 	o += ".ontop {position:relative; z-index:5}"
-	
 	# Mark the two known 470
-	o += "#td35  {box-shadow: inset 0px 0px 0px 2px #f0f;}"
-	o += "#td482 {box-shadow: inset 0px 0px 0px 2px #00f;}"
-
+	o += "#td35  {box-shadow: inset 0px 0px 0px 2px #f0f; cursor: pointer;}"
+	o += "#td482 {box-shadow: inset 0px 0px 0px 2px #00f; cursor: pointer;}"
 	o += "</style>\n"
 
-
 	o += "<table>\n"
-	o += "<tr><th>\</th>"
+	o += "<tr>"
 	for m in range(23):
 		o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
-	o += "<th>/</th>"
 	o += "</tr>\n"
 	o += "</table>\n"
-
-	#for i in stats_max:
 
 	stats_avg[0] += numpy.rot90(numpy.fliplr(stats_avg[1]))
 	stats_avg[2] += numpy.rot90(numpy.fliplr(stats_avg[3]))
 
+	o += "<br/>\n"
+	o += "<br/>\n"
 
-	o += "<br/>\n"
-	o += "<br/>\n"
+	best_edges_combo = {}
 
 	mi=0
 	td=0
@@ -232,7 +228,8 @@ def get_stats_html():
 					else:
 						edges_combo_title=str(mmmi)+"-"+str(mm)+"-"+str(nn)
 					
-				o += "<td id='td"+str(td)+"' title='"+edges_combo_title+"' class='ontop' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"+str( "{:.2f}".format(k) if k>0 else "")+"</td>"
+				o += "<td id='td"+str(td)+"' title='"+edges_combo_title+"' class='ontop' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"+str( "{:.2f}".format(k) if k>0 else "")+"</td>\n"
+				best_edges_combo[edges_combo_title] = k
 				td+=1
 			o += "<td title='"+str(mm)+"'>"+str(middle_motifs_right[mm])+"</td>"
 			o += "</tr>\n"
@@ -250,6 +247,30 @@ def get_stats_html():
 		o += "<br/>\n"
 		o += "<br/>\n"
 		
+
+	o += "<script>"
+	o += "document.getElementById('td35').onclick  = function () { window.open('https://e2.bucas.name/#puzzle=JBlackwood+Jef_470','_blank'); };"
+	o += "document.getElementById('td482').onclick = function () { window.open('https://e2.bucas.name/#puzzle=Joshua_Blackwood_470','_blank'); };"
+	o += "</script>\n"
+
+
+	best_edges_combo = reversed(sorted(best_edges_combo.items(), key=lambda x:x[1]))
+
+	o += "<table>"
+	for ec,k in best_edges_combo:
+		c = ((k-minimum)/(256-minimum))*256 if k>0 else 0
+		r,g,b,a = palette.palette[int(c)] 
+		r,g,b,a = int(r*255),int(g*255),int(b*255),int(a*255)
+		if k == 0:
+			continue
+
+		count = 0
+		path = "results/"+ec
+		if path in all_results:
+			count = len(all_results[path])
+
+		o += "<tr style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'><td>"+ec+"</td><td>"+str( "{:.2f}".format(k) if k>0 else "")+"</td><td>"+str(count)+" samples</td></tr>\n"
+	o += "</table>\n"
 
 	return o
 
