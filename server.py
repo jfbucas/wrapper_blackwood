@@ -82,6 +82,15 @@ def get_next_job():
 		("9-10-15", 250.96),
 		]
 
+	best_edges_combo = [
+		("9-10-15", 250.96),
+		("9-12-15", 250.86),
+		("13-3-22", 250.65),
+		("5-21-22", 250.65),
+		("9-19-21", 250.61),
+		("5-8-21", 250.61),
+		]
+
 	random.shuffle(best_edges_combo)
 
 	return best_edges_combo[0]
@@ -151,6 +160,8 @@ class MyServer(BaseHTTPRequestHandler):
 			#print(job_result)
 
 			# Write to disk
+			if "results/" not in job_result["job_path"]:
+				job_result["job_path"] = "results/"+job_result["job_path"]
 			job_file = open(job_result["job_path"]+"/"+str(time.time())+".json", "wb")	
 			job_file.write(post_data)
 			job_file.close()
