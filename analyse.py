@@ -167,7 +167,7 @@ def get_stats_html():
 
 	o = ""
 	o += "<style>"
-	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:150%;}"
+	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:250%;}"
 	o += "table {border-spacing:0px; margin:auto;}"
 	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:7px; "
 	o += "color: white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }"
@@ -298,7 +298,7 @@ def get_stats_html():
 		x = 0
 		for h in ic_heatmap_8bits:
 			rh,gh,bh = palette.palette_heatmap[h] 
-			heatmap_svg += '<line x1="'+str(x*2)+'" y1="0" x2="'+str(x*2)+'" y2="20" style="stroke:rgb('+str(rh)+','+str(gh)+','+str(bh)+');stroke-width:3" />'
+			heatmap_svg += '<g><title>'+str(x)+'</title><line x1="'+str(x*2)+'" y1="0" x2="'+str(x*2)+'" y2="20" style="stroke:rgb('+str(rh)+','+str(gh)+','+str(bh)+');stroke-width:3" /></g>'
 			x+=1
 		heatmap_svg += '</svg>'
 
