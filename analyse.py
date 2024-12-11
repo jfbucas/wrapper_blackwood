@@ -37,6 +37,7 @@ def load_results():
 		except OSError as error:
 			print(path,"doesn't exists")
 
+	print("Loaded", sum([len(x[1]) for x in all_results.items()]), "results.")
 	return all_results
 
 def count(all_results, display=False):
@@ -106,14 +107,16 @@ def get_stats_html():
 	stats_avg     = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) )) #, dtype=int)
 	stats_samples = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) ), dtype=int)
 
+	all_total_ic = {}
+
 	for path in index_counts.keys():
-		total_ic = numpy.zeros((258), dtype=int)
+		all_total_ic[path] = numpy.zeros((258), dtype=int)
 		zeroes = [] 
 		for ic in index_counts[path]:
-			total_ic = numpy.add(total_ic, ic)
+			all_total_ic[path] = numpy.add(all_total_ic[path], ic)
 			zeroes.append( numpy.where(ic == 0)[0][1] )
 
-		z = numpy.where(total_ic == 0)[0]
+		z = numpy.where(all_total_ic[path] == 0)[0]
 
 		i, j, k = puzzle.path_to_edge_combo(path)
 		i = puzzle.SIDE_EDGES.index(i)
@@ -168,16 +171,29 @@ def get_stats_html():
 	o += "table {border-spacing:0px; margin:auto;}"
 	o += "th,td {height:32px; width:32px;padding:0px; text-align:center; font-size:7px; "
 	o += "color: white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }"
+	o += ".numbers {height:8px}"
 	o += ".ontop {position:relative; z-index:5}"
 	# Mark the two known 470
-	o += "#td35  {box-shadow: inset 0px 0px 0px 2px #f0f; cursor: pointer;}"
-	o += "#td482 {box-shadow: inset 0px 0px 0px 2px #00f; cursor: pointer;}"
+	#o += "#td35  #3-5-4    {box-shadow: inset 0px 0px 0px 2px #f0f; cursor: pointer;}"
+	#o += "#td482 #13-10-16 {box-shadow: inset 0px 0px 0px 2px #00f; cursor: pointer;}"
+	o += "td.jb470    {box-shadow: inset 0px 0px 0px 3px #00f; cursor: pointer;}"
+	o += "td.jb470jef {box-shadow: inset 0px 0px 0px 3px #f0f; cursor: pointer;}"
+	o += "tr.jb470    {box-shadow: -10px 0px #00f, 10px 0px #00f; cursor: pointer;}"
+	o += "tr.jb470jef {box-shadow: -10px 0px #f0f, 10px 0px #f0f; cursor: pointer;}"
 	o += "</style>\n"
 
 	o += "<table>\n"
 	o += "<tr>"
 	for m in range(23):
-		o += "<th>"+str(m)+str(middle_motifs_top[m])+"</th>"
+		o += "<th class='numbers'>"+str(m)+"</th>"
+	o += "</tr>\n"
+	o += "<tr>"
+	for m in range(23):
+		o += "<td>"+str(middle_motifs_top[m])+"</td>"
+	o += "</tr>\n"
+	o += "<tr>"
+	for m in range(23):
+		o += "<td>"+str(middle_motifs_bottom[m])+"</td>"
 	o += "</tr>\n"
 	o += "</table>\n"
 
@@ -249,14 +265,13 @@ def get_stats_html():
 		
 
 	o += "<script>"
-	o += "document.getElementById('td35').onclick  = function () { window.open('https://e2.bucas.name/#puzzle=JBlackwood+Jef_470','_blank'); };"
-	o += "document.getElementById('td482').onclick = function () { window.open('https://e2.bucas.name/#puzzle=Joshua_Blackwood_470','_blank'); };"
 	o += "</script>\n"
 
 
 	best_edges_combo = reversed(sorted(best_edges_combo.items(), key=lambda x:x[1]))
 
 	o += "<table>"
+	o += "<tr><th>Edges Combo</th><th>Average Max Depth</th><th>Max Depth</th><th># Samples</th><th>Depth Heatmap</th></tr>\n"
 	for ec,k in best_edges_combo:
 		c = ((k-minimum)/(256-minimum))*256 if k>0 else 0
 		r,g,b,a = palette.palette[int(c)] 
@@ -269,8 +284,42 @@ def get_stats_html():
 		if path in all_results:
 			count = len(all_results[path])
 
-		o += "<tr style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'><td>"+ec+"</td><td>"+str( "{:.2f}".format(k) if k>0 else "")+"</td><td>"+str(count)+" samples</td></tr>\n"
+		ii,jj,kk = puzzle.path_to_edge_combo(path)
+		ii=puzzle.SIDE_EDGES.index(ii)
+		jj=puzzle.MIDDLE_EDGES.index(jj)
+		kk=puzzle.MIDDLE_EDGES.index(kk)
+
+		ic_heatmap = all_total_ic[path]
+		ic_heatmap_log = numpy.log1p(ic_heatmap)
+		ic_heatmap_normalize = (ic_heatmap_log/math.log(max(ic_heatmap))) * 255
+		ic_heatmap_8bits = ic_heatmap_normalize.astype(numpy.uint8)
+
+		heatmap_svg = '<svg height="20" width="512" xmlns="http://www.w3.org/2000/svg">'
+		x = 0
+		for h in ic_heatmap_8bits:
+			rh,gh,bh = palette.palette_heatmap[h] 
+			heatmap_svg += '<line x1="'+str(x*2)+'" y1="0" x2="'+str(x*2)+'" y2="20" style="stroke:rgb('+str(rh)+','+str(gh)+','+str(bh)+');stroke-width:3" />'
+			x+=1
+		heatmap_svg += '</svg>'
+
+		o += "<tr id='tr"+ec.replace("-","_")+"' style='background-color:rgba("+str(r)+","+str(g)+","+str(b)+","+str(a)+");'>"
+		o += "<td>"+ec+"</td>"
+		o += "<td>"+str( "{:.2f}".format(k) if k>0 else "")+"</td>"
+		o += "<td>"+str(stats_max[ii,jj,kk])+"</td>"
+		o += "<td>"+str(count)+"</td><td style='background-color:black;'>"+heatmap_svg+"</td>"
+		o += "</tr>\n"
 	o += "</table>\n"
 
+	o += "<script>"
+	o += "document.getElementById('td35').onclick  = function () { window.open('https://e2.bucas.name/#puzzle=JBlackwood+Jef_470','_blank'); };"
+	o += "document.getElementById('td35').classList.add('jb470jef');"
+	o += "document.getElementById('td482').onclick = function () { window.open('https://e2.bucas.name/#puzzle=Joshua_Blackwood_470','_blank'); };"
+	o += "document.getElementById('td482').classList.add('jb470');"
+
+	o += "document.getElementById('tr5_3_4').onclick  = function () { window.open('https://e2.bucas.name/#puzzle=JBlackwood+Jef_470','_blank'); };"
+	o += "document.getElementById('tr5_3_4').classList.add('jb470jef');"
+	o += "document.getElementById('tr13_10_16').onclick = function () { window.open('https://e2.bucas.name/#puzzle=Joshua_Blackwood_470','_blank'); };"
+	o += "document.getElementById('tr13_10_16').classList.add('jb470');"
+	o += "</script>\n"
 	return o
 
