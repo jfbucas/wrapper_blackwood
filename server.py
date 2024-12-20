@@ -97,13 +97,12 @@ def get_next_job():
 
 
 	next_job = {
-		"job_title": "Best Edges Combo Mapping With Less Node Count Limit",
+		"job_title": "Best Edges Combo Mapping With Less Node_Count_Limit",
 		"job_description": "Edges Combo "+str(best_edges_combo[0][0]),
 		"job_batch": "batch01_edges_combo_shorter",
 		"job_path" : best_edges_combo[0][0],
 		"HEURISTIC_SIDES" : best_edges_combo[0][0].replace("-",","),
-		#"NODE_COUNT_LIMIT" : 5000000000,
-		"NODE_COUNT_LIMIT" : 500000,
+		"NODE_COUNT_LIMIT" : 5000000000,
 		"HOOK" : HOOK,
 		}
 
