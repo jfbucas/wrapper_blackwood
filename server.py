@@ -96,10 +96,10 @@ def get_next_job():
 
 	next_job = {
 		"job_title": "Best Edges Combo Mapping With Less Node Count Limit",
-		"job_description": "Edges Combo "+str(best_edges_combo[0]),
+		"job_description": "Edges Combo "+str(best_edges_combo[0][0]),
 		"job_batch": "batch01_edges_combo_shorter",
-		"job_path" : best_edges_combo[0],
-		"HEURISTIC_SIDES" : best_edges_combo[0].replace("-",","),
+		"job_path" : best_edges_combo[0][0],
+		"HEURISTIC_SIDES" : best_edges_combo[0][0].replace("-",","),
 		"NODE_COUNT_LIMIT" : 5000000000,
 		"HOOK" : HOOK,
 		}
@@ -141,9 +141,8 @@ class MyServer(BaseHTTPRequestHandler):
 				self.send_response(200)
 				self.send_header('Content-Type', 'application/json')
 				self.end_headers()
-				print("Sending job", next_job["description"])
+				print("Sending job", next_job["job_description"])
 				job_params = parameters.get_next_job_params(next_job)
-				job_params["job_path"] = next_job[0]
 				self.wfile.write(bytes(json.dumps( job_params ), "utf-8"))
 			else:
 				self.send_response(404)
@@ -167,7 +166,7 @@ class MyServer(BaseHTTPRequestHandler):
 		try:
 			job_result = json.loads(post_data)
 
-			print("Receiving", job_result["description"])
+			print("Receiving", job_result["job_description"])
 			#print(job_result)
 
 			# Build up name

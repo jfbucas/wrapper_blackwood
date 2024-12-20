@@ -43,11 +43,9 @@ default_template_params = {
 
 def get_next_job_params( next_job ):
 
-	# Replace all uppercase job params into the template params
 	template_params = default_template_params.copy()
 	for k in next_job.keys():
-		if k.isupper():
-			template_params[k] = next_job[k]
+		template_params[k] = next_job[k]
 
 	return template_params
 

@@ -97,7 +97,7 @@ class client_thread(threading.Thread):
 
 			# Do the thing
 			try:
-				print("Working on Job ", str(job))
+				print("Working on Job ", job["job_description"])
 				sys.stdout.flush()
 				templating.gen_templates(job, self.thread_number)
 				templating.compile(self.thread_number)
