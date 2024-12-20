@@ -131,18 +131,18 @@ class client_thread(threading.Thread):
 
 			# Submit results
 			retry = 0
-			while retry < 6:
+			while retry < 60:
 				try:
 					r = requests.put('http://'+self.host+":"+str(self.serverPort)+'/', data = json.dumps(job))
 					break
 				except:
 					pass
 
-				print("Couldn't send results for job", job["job_description"], ". Retrying "+str(retry)+" every 10s")
-				time.sleep(1)
+				print("Couldn't send results for job", job["job_description"], ". Retrying "+str(retry)+"/60 (every 10s)")
+				time.sleep(10)
 				retry += 1
 
-			if retry >= 6:
+			if retry >= 60:
 				print("Couldn't send results for job", job["job_description"], ". Moving on to the next job.")
 
 
