@@ -28,6 +28,10 @@ serverPort = 5001
 if os.environ.get('PORT') != None:
 	serverPort = int(os.environ.get('PORT'))
 
+HOOK=''
+if os.environ.get('HOOK'): 
+	HOOK = os.environ.get('HOOK')
+
 job_list = []
 
 def make_results_folders():
@@ -54,6 +58,7 @@ def prepare_next_jobs():
 
 
 def get_next_job():
+	global HOOK
 
 	best_edges_combo = [
 		("5-15-19", 250.39),
@@ -90,9 +95,6 @@ def get_next_job():
 
 	random.shuffle(best_edges_combo)
 
-	HOOK=''
-	if os.environ.get('HOOK'): 
-		HOOK = os.environ.get('HOOK')
 
 	next_job = {
 		"job_title": "Best Edges Combo Mapping With Less Node Count Limit",
@@ -179,14 +181,14 @@ class MyServer(BaseHTTPRequestHandler):
 			job_path = "results/"+job_result["job_batch"]+"/"+job_path
 
 			# Create folder
-			if not os.path.exists( job_result["job_path"] ):
+			if not os.path.exists( job_path ):
 				try:
-					os.makedirs( job_result["job_path"] )
+					os.makedirs( job_path )
 				except OSError as error:
 					print("Couldn't create", job_path)
 
 			# Write result
-			job_file = open(job_result["job_path"]+"/"+str(time.time())+".json", "wb")	
+			job_file = open(job_path+"/"+str(time.time())+".json", "wb")	
 			job_file.write(post_data)
 			job_file.close()
 
