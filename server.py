@@ -56,62 +56,6 @@ def prepare_next_jobs():
 def get_next_job():
 
 	best_edges_combo = [
-		("17-10-22", 250.04),
-		("9-15-20", 250.07),
-		("17-3-21", 250.25),
-		("13-4-19", 250.26),
-		("5-15-19", 250.29),
-		("9-15-21", 250.31),
-		("5-7-19", 250.38),
-		("5-8-19", 250.40),
-		("13-3-11", 250.44),
-		("13-3-7", 250.45),
-		("17-19-21", 250.47),
-		("9-15-19", 250.48),
-		("17-4-19", 250.48),
-		("1-3-10", 250.49),
-		("5-3-15", 250.53),
-		("1-12-15", 250.55),
-		("17-21-22", 250.56),
-		("17-4-22", 250.58),
-		("5-8-21", 250.61),
-		("9-19-21", 250.61),
-		("5-21-22", 250.65),
-		("13-3-22", 250.65),
-		("9-12-15", 250.86),
-		("9-10-15", 250.96),
-		]
-
-	best_edges_combo = [
-		("9-10-15", 250.96),
-		("9-12-15", 250.86),
-		("13-3-22", 250.65),
-		("5-21-22", 250.65),
-		("9-19-21", 250.61),
-		("5-8-21", 250.61),
-		]
-
-	best_edges_combo = [
-		("9-10-15", 250.88),
-		("13-3-22", 250.81),
-		("9-12-15", 250.78),
-		("9-19-21", 250.62),
-		("17-21-22", 250.60),
-		("5-21-22", 250.58),
-		("5-3-15", 250.58),
-		("17-4-19", 250.55),
-		("9-15-19", 250.55),
-		("1-12-15", 250.55),
-		("5-8-21", 250.54),
-		("17-4-22", 250.53),
-		("17-19-21", 250.49),
-		("1-3-10", 250.47),
-		("13-3-7", 250.44),
-		("13-3-11", 250.41),
-		("5-8-19", 250.41),
-		]
-
-	best_edges_combo = [
 		("5-15-19", 250.39),
 		("9-15-21", 250.36),
 		("5-7-19", 250.34),
@@ -146,7 +90,21 @@ def get_next_job():
 
 	random.shuffle(best_edges_combo)
 
-	return best_edges_combo[0]
+	HOOK=''
+	if os.environ.get('HOOK'): 
+		HOOK = os.environ.get('HOOK')
+
+	next_job = {
+		"job_title": "Best Edges Combo Mapping With Less Node Count Limit",
+		"job_description": "Edges Combo "+str(best_edges_combo[0]),
+		"job_batch": "batch01_edges_combo_shorter",
+		"job_path" : best_edges_combo[0],
+		"HEURISTIC_SIDES" : best_edges_combo[0].replace("-",","),
+		"NODE_COUNT_LIMIT" : 5000000000,
+		"HOOK" : HOOK,
+		}
+
+	return next_job
 
 	global job_list
 	if len(job_list) == 0:
@@ -183,7 +141,7 @@ class MyServer(BaseHTTPRequestHandler):
 				self.send_response(200)
 				self.send_header('Content-Type', 'application/json')
 				self.end_headers()
-				print("Sending job", next_job)
+				print("Sending job", next_job["description"])
 				job_params = parameters.get_next_job_params(next_job)
 				job_params["job_path"] = next_job[0]
 				self.wfile.write(bytes(json.dumps( job_params ), "utf-8"))
@@ -209,12 +167,25 @@ class MyServer(BaseHTTPRequestHandler):
 		try:
 			job_result = json.loads(post_data)
 
-			print("Receiving", job_result["JOBGROUP"])
+			print("Receiving", job_result["description"])
 			#print(job_result)
 
-			# Write to disk
-			if "results/" not in job_result["job_path"]:
-				job_result["job_path"] = "results/"+job_result["job_path"]
+			# Build up name
+			job_path = job_result["job_path"].replace("results/","")
+
+			if "job_batch" not in job_result.keys():
+				job_result["job_batch"] = "batch00_edge_combos"
+
+			job_path = "results/"+job_result["job_batch"]+"/"+job_path
+
+			# Create folder
+			if not os.path.exists( job_result["job_path"] ):
+				try:
+					os.makedirs( job_result["job_path"] )
+				except OSError as error:
+					print("Couldn't create", job_path)
+
+			# Write result
 			job_file = open(job_result["job_path"]+"/"+str(time.time())+".json", "wb")	
 			job_file.write(post_data)
 			job_file.close()

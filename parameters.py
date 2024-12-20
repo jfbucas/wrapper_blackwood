@@ -35,18 +35,19 @@ default_template_params = {
 	"NB_CORES"              : 1, # 1 or more
 	"NUMBER_SOLVEPUZZLE"    : 5,
 	"NUMBER_LOOPS"          : 2,
+	"HOOK"                  : '',
 }
 
 #print(default_template_params)
 
 
 def get_next_job_params( next_job ):
+
+	# Replace all uppercase job params into the template params
 	template_params = default_template_params.copy()
-	template_params["JOBGROUP"] = next_job
-	template_params["HEURISTIC_SIDES"] = next_job[0].replace("results/","").replace("-",",")
-	template_params["HOOK"] = ""
-	if os.environ.get('HOOK'): 
-		template_params["HOOK"] = os.environ.get('HOOK')
+	for k in next_job.keys():
+		if k.isupper():
+			template_params[k] = next_job[k]
 
 	return template_params
 

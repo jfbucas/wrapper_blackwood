@@ -80,8 +80,12 @@ def machines_stats(all_results):
 				if "runtime" in r.keys():
 					machines[r["hostname"]].append(r["runtime"])
 
+	avg = {}
 	for m in machines.keys():
-		print(m, "Results=",len(machines[m]), "Avg=", int(sum(machines[m])/len(machines[m])))
+		avg[m] = (len(machines[m]), int(sum(machines[m])/len(machines[m])))
+
+	for m,i in sorted(avg.items(), key=lambda x:x[1][1]):
+		print(m, "Results=",i[0], "Avg=", i[1])
 
 
 def get_index_counts(all_results):

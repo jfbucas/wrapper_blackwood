@@ -97,7 +97,7 @@ class client_thread(threading.Thread):
 
 			# Do the thing
 			try:
-				print("Working on Job ", str(job["HEURISTIC_SIDES"]))
+				print("Working on Job ", str(job))
 				sys.stdout.flush()
 				templating.gen_templates(job, self.thread_number)
 				templating.compile(self.thread_number)
@@ -130,11 +130,13 @@ class client_thread(threading.Thread):
 
 
 			# Submit results
-			try:
-				r = requests.put('http://'+self.host+":"+str(self.serverPort)+'/', data = json.dumps(job))
-			except:
-				print("Couldn't send results for job", job, ". Moving on to the next job.")
-				time.sleep(1)
-				continue
+			for retry in range(30):
+				try:
+					r = requests.put('http://'+self.host+":"+str(self.serverPort)+'/', data = json.dumps(job))
+					break
+				except:
+					print("Couldn't send results for job", job, ". Moving on to the next job. ("+str(retry)+"/30)")
+					time.sleep(10)
+					continue
 
 
