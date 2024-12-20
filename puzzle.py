@@ -8,7 +8,7 @@ patterns_count = [0] * (len(SIDE_EDGES + MIDDLE_EDGES)+1)
 edges_combo = []
 
 def path_to_edge_combo(path):
-	return map(int, path.replace("results/","").split("-"))
+	return map(int, path.split("/")[-1].split("-"))
 
 def read_pieces():
 
@@ -40,6 +40,9 @@ def read_pieces():
 
 
 def get_edges_combo():
+	if len(edges_combo) > 0:
+		return edges_combo
+
 	for i in SIDE_EDGES:
 		for j in MIDDLE_EDGES:
 			for k in MIDDLE_EDGES:

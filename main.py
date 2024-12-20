@@ -28,7 +28,10 @@ def run( role ):
 			run( "help" )
 
 	elif role == "analyse":
-		ar = analyse.load_results()
+		batch=""
+		if len(sys.argv) > 2:
+			batch = sys.argv[2]
+		ar = analyse.load_results(batch)
 		analyse.count(ar, display=True)
 		#analyse.find_fastest(ar)
 		analyse.machines_stats(ar)

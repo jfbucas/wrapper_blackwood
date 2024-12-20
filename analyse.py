@@ -7,17 +7,25 @@ import puzzle
 import palette
 import motifs
 
-#def array_add(a1,a2):
-#	a1=numpy.array(a1)
-#	a2=numpy.array(a2)
-#	return numpy.add(a1,a2)
 
-def load_results():
+def get_default_batch(batch=""):
+	# If batch is empty, we use the last one
+	if batch == "":
+		batch = sorted([ f.path for f in os.scandir("results/") if f.is_dir() ])[-1]
+	
+	if "results/" not in batch:
+		batch = "results/"+batch
+
+	return batch
+
+
+def load_results(batch=""):
+
+	batch = get_default_batch(batch)
 
 	# Get the folder with the least amount of samples
 	all_results = {}
-	for i,j,k in puzzle.edges_combo:
-		path = "results/"+str(i)+"-"+str(j)+"-"+str(k)
+	for path in sorted([ f.path for f in os.scandir(batch) if f.is_dir() ]):
 		all_results[path] = []
 		try:
 			for fn in [os.path.join(path, name) for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]:
@@ -102,9 +110,8 @@ def get_index_counts(all_results):
 
 
 
-def get_stats_html():
+def get_stats_html(all_results):
 
-	all_results = load_results()
 	index_counts = get_index_counts(all_results)
 
 	stats_max     = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) ), dtype=int)
@@ -284,9 +291,14 @@ def get_stats_html():
 			continue
 
 		count = 0
-		path = "results/"+ec
-		if path in all_results:
-			count = len(all_results[path])
+		path = ""
+		for path in all_results:
+			if path.endswith(ec):
+				count = len(all_results[path])
+				break
+				
+		#path = "results/"+batch+"/"+ec
+		#if path in all_results:
 
 		ii,jj,kk = puzzle.path_to_edge_combo(path)
 		ii=puzzle.SIDE_EDGES.index(ii)
