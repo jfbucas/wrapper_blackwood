@@ -11,26 +11,20 @@ import analyse
 
 
 # ----- Parameters
-def run( role ):
+def run( role, hostname="", batch="" ):
 
-	# timer
+	# <Timer>
 	startTime = time.time()
 
 	# -------------------------------------------
 	# Start
 
 	if role == "server":
-		server.server("", server.serverPort)
+		server.server("", server.serverPort, batch)
 	elif role == "client":
-		if len(sys.argv) > 2:
-			client.client(sys.argv[2], server.serverPort)
-		else:
-			run( "help" )
+		client.client(hostname, server.serverPort)
 
 	elif role == "analyse":
-		batch=""
-		if len(sys.argv) > 2:
-			batch = sys.argv[2]
 		ar = analyse.load_results(batch)
 		analyse.count(ar, display=True)
 		#analyse.find_fastest(ar)
@@ -38,31 +32,37 @@ def run( role ):
 		#analyse.get_stats_html()
 
 	elif role == "help":
-		print( "+ Roles")
-		print( " [--server|-s] | hostname | [--analyse|-a] | [-h|--help]")
+		print( sys.argv[0], "[ [client] hostname | server | analyse | help ] | [--batch batch]")
 		print( )
-	else:
-		print( "ERROR: unknown parameter:", role )
+		exit(0)
 
-	if role in [ "server", "client" ]:
-		print()
-		print( "Execution time: ", time.time() - startTime )
+	# </Timer>
+	print()
+	print( "Execution time: ", time.time() - startTime )
 
 
 
 if __name__ == "__main__":
 
-	role = "client"
+	role     = "help"
+	batch    = ""
+	hostname = ""
 
-	# Get Role
+	# Get Params
 	if len(sys.argv) > 1:
-		a = sys.argv[1]
-		if a.startswith("--server") or a.startswith("-s"):
-			role = "server"
-		elif a.startswith("--analyse") or a.startswith("-a"):
-			role = "analyse"
-		elif a.startswith("-h") or a.startswith("--help"):
-			role = "help"
-	
-	run( role )
+		argp = 1
+		while argp < len(sys.argv):
+			a = sys.argv[argp]
+			if a in [ "client", "server", "analyse", "help" ]:
+				role = a
+			elif a.startswith("--batch"):
+				if argp+1 < len(sys.argv):
+					batch = sys.argv[argp+1]
+					argp += 1
 
+			else:
+				hostname = a
+
+			argp += 1
+		
+	run( role, hostname, batch)

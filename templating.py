@@ -3,8 +3,6 @@ import sys
 import subprocess
 import socket
 
-import parameters
-
 SOLVERPATH="solver"
 #GENERATEDPATH="generated"
 

@@ -6,12 +6,25 @@ import math
 import puzzle
 import palette
 import motifs
+import jobs
 
 
 def get_default_batch(batch=""):
 	# If batch is empty, we use the last one
-	if batch == "":
-		batch = sorted([ f.path for f in os.scandir("results/") if f.is_dir() ])[-1]
+	try:
+		if batch == "":
+			batch = sorted([ f.path for f in os.scandir("results/") if f.is_dir() ])[-1]
+		else:
+			batch = sorted([ f.path for f in os.scandir("results/") if f.is_dir() and batch in f.path ])[-1]
+	except:
+
+		next_job = jobs.get_next_job(batch)
+
+		if next_job == None:
+			print("Batch", batch, " not found")
+			exit(0)
+
+		batch = next_job["job_batch"]
 	
 	if "results/" not in batch:
 		batch = "results/"+batch
@@ -110,8 +123,31 @@ def get_index_counts(all_results):
 
 
 
-def get_stats_html(all_results):
+def get_stats_html(batch, all_results):
 
+	# TODO menu
+
+	result = "Not Found"
+
+	for n in [ "00", "01", "02", "04" ]:
+		if n in batch:
+			result = get_stats_html_edges_combo(all_results)
+	
+	if "03" in batch or \
+	   "05" in batch:
+		result = get_stats_html_node_count_limit(all_results)
+
+	print(batch)
+	
+	# Write result in doc/
+	f = open("doc/"+batch+".html", "w")
+	f.write(result)
+	f.close()
+
+	return result
+
+
+def get_stats_html_edges_combo(all_results):
 	index_counts = get_index_counts(all_results)
 
 	stats_max     = numpy.zeros( (len(puzzle.SIDE_EDGES), len(puzzle.MIDDLE_EDGES), len(puzzle.MIDDLE_EDGES) ), dtype=int)
@@ -339,3 +375,101 @@ def get_stats_html(all_results):
 	o += "</script>\n"
 	return o
 
+
+def get_stats_html_node_count_limit(all_results):
+
+	#node_count_limit = random.randint(100000000,100000000000)
+	ncl_min = 100000000
+	ncl_max = 100000000000
+	#ncl_list = []
+	#for r in all_results[path]:
+	#	ncl_list.append(r["node_count_limit"])
+
+	#ncl_min = min(ncl_list)
+	#ncl_max = max(ncl_list)
+
+	all_total_ic = {}
+
+	index_counts_and_node_count_limit = {}
+	stats_max = {}
+	stats_avg = {}
+	stats_samples = {}
+	nb_groups = 2048
+	ncl_group_size = (ncl_max-ncl_min)//nb_groups
+	for path in all_results.keys():
+		if path not in index_counts_and_node_count_limit.keys():
+			index_counts_and_node_count_limit[path] = []
+			stats_max[path] = [0] * nb_groups
+			stats_avg[path] = [0] * nb_groups
+			stats_samples[path] = [0] * nb_groups
+			for group in range(nb_groups):
+				index_counts_and_node_count_limit[path].append( [] )
+		
+
+		for r in all_results[path]:
+			ncl_group = (r["NODE_COUNT_LIMIT"] - ncl_min) // ncl_group_size
+			index_counts_and_node_count_limit[path][ncl_group].append(numpy.array(r["index_counts"]+[0]))
+
+
+		for group in range(nb_groups):
+			#total_ic = numpy.zeros((258), dtype=int)
+
+			zeroes = [] 
+			for ic in index_counts_and_node_count_limit[path][group]:
+				#total_ic = numpy.add(total_ic, ic)
+				zeroes.append( numpy.where(ic == 0)[0][1] )
+
+			#z = numpy.where(all_total_ic[path][group] == 0)[0]
+
+			
+			if len(zeroes) > 0:
+				stats_samples[path][group] = len(zeroes)
+				stats_max[path][group] = max(zeroes)
+				stats_avg[path][group] = sum(zeroes)/len(zeroes)
+
+		#print(i, j, k, "Max: "+str(max(zeroes)), "Avg: "+str(sum(zeroes)//len(zeroes)), "Samples: "+str(len(zeroes)))
+
+		
+	o = "<html>"
+	o += "<head>"
+	o += "<style>"
+	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:100%;}"
+	o += "table {border-spacing:0px; margin:auto;}"
+	o += "color: white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }"
+	# Mark the two known 470
+	#o += "#td35  #3-5-4    {box-shadow: inset 0px 0px 0px 2px #f0f; cursor: pointer;}"
+	#o += "#td482 #13-10-16 {box-shadow: inset 0px 0px 0px 2px #00f; cursor: pointer;}"
+	o += "polyline.jb470    {stroke:#00f; cursor: pointer;}"
+	o += "polyline.jb470jef {stroke:#f0f; cursor: pointer;}"
+	o += "</style>\n"
+	o += "</head>"
+	o += "<body>"
+
+
+	o_svg = '<svg height="1024" width="2048" xmlns="http://www.w3.org/2000/svg">'
+	zoom=150
+	for path in all_results.keys():
+		sp = path.split("/")[-1].replace("-","_")
+		#print(list(map(int, sp.split("_"))))
+		v = (sum( map(int, sp.split("_")) )*5) % 256
+		g = f"{v:#0{4}x}".replace("0x","")
+		sp_color = "#"+ g+g+g #"".join([chr(ord("0")+(c%10)) for c in map(int, sp.split("_"))])
+		o_svg += '<polyline id="line'+sp+'" points="'
+		for group in range(nb_groups):
+			if stats_avg[path][group] > 0:
+				o_svg+=str(group)+","+str((stats_avg[path][group]*zoom)-(245*zoom))+" "
+		o_svg += '" style="fill:none;stroke:'+sp_color+';stroke-width:1" />'
+	o_svg += '</svg>'
+
+	oj = "<script>"
+	oj += "jb470jef = document.getElementById('line5_3_4');"
+	oj += "jb470jef.onclick = function () { window.open('https://e2.bucas.name/#puzzle=JBlackwood+Jef_470','_blank'); };"
+	oj += "jb470jef.style.stroke = '#f0f';"
+	oj += "jb470 = document.getElementById('line13_10_16');"
+	oj += "jb470.onclick = function () { window.open('https://e2.bucas.name/#puzzle==Joshua_Blackwood_470','_blank'); };"
+	oj += "jb470.style.stroke = '#00f';"
+	oj += "</script>"
+	oj += "</body>"
+	oj += "</html>"
+
+	return o+o_svg+oj
