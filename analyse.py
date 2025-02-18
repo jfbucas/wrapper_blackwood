@@ -140,9 +140,13 @@ def get_stats_html(batch, all_results):
 	   "05" in batch:
 		result = get_stats_html_node_count_limit(all_results)
 
-	if "07" in batch:
+	elif "07" in batch:
 		result = get_stats_html_heuristic_array_variations(all_results)
 
+	elif "08" in batch:
+		result = get_stats_html_break_indexes_allowed(all_results)
+	elif "09" in batch:
+		result = get_stats_html_break_indexes_allowed(all_results)
 	
 	# Write result in doc/
 	f = open("doc/"+batch+".html", "w")
@@ -538,8 +542,86 @@ def get_stats_html_heuristic_array_variations(all_results):
 					l += str(previous[0]*zoom)+","+str((120-previous[1])*zoom)+" "
 					l += str(x*zoom)+","+str((120-y)*zoom)+" "
 					l += '" STYLE />'
-					previous=(x,y)
 					all_lines[l] = style
+					previous=(x,y)
+	all_lines2 = []
+	for k,v in all_lines.items():
+		all_lines2.append(k.replace("STYLE",v))
+	print("Lines compiled :", len(all_lines2))
+
+	o_svg += "\n".join(all_lines2)
+	o_svg += '</svg>'
+
+	oj = "<script>"
+	oj += "</script>"
+	oj += "</body>"
+	oj += "</html>"
+
+	return o+o_svg+oj
+
+def get_stats_html_break_indexes_allowed(all_results):
+
+	all_total_depth = []
+	for i in range(257):
+		all_total_depth.append( [] )
+
+	if len(all_results.keys()) > 1:
+		return "More than one"
+
+	v = list(all_results.values())[0]
+	for r in v:
+		
+		ic = numpy.array(r["index_counts"]+[0])
+		r["zero"] = numpy.where(ic == 0)[0][1]
+		all_total_depth[r["zero"]].append( r )
+
+	#jb470 = { "BREAK_INDEXES_ALLOWED" : list(map(int, jobs.default_template_params["BREAK_INDEXES_ALLOWED"].split(",")))}
+	jb470 = { "BREAK_INDEXES_ALLOWED" : jobs.default_template_params["BREAK_INDEXES_ALLOWED"] }
+
+	all_total_depth[256].append( jb470 )
+
+	for i in range(257):
+		if len(all_total_depth[i]) > 0:
+			print(i, len(all_total_depth[i]))
+
+	o = "<html>"
+	o += "<head>"
+	o += "<style>"
+	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:100%;}\n"
+	o += "table {border-spacing:0px; margin:auto;}\n"
+	o += "color: { white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }\n"
+	o += "</style>\n"
+	o += "</head>"
+	o += "<body>"
+
+	o_svg = '<svg height="2048" width="2048" xmlns="http://www.w3.org/2000/svg">'
+	zoomx = 40
+	zoomy = 150
+	all_lines = {}
+	for i in range(100, 257):
+		r,g,b,a = int(0*255),int(0*255),int(0*255),int(0*255)
+		if i < 240:
+			pass
+		elif i >= 240 and i < 256:
+			r,g,b,a = palette.palette[(i-240)*16] 
+			r,g,b,a = int(r*255),int(g*255),int(b*255),int(a*255)
+		else:
+			r,g,b,a = int(0*255),int(0*255),int(1*255),int(0*255)
+		style = 'style="fill:none; stroke:rgb('+str(r)+','+str(g)+','+str(b)+'); stroke-width:3;"'
+
+		
+		if len(all_total_depth[i]) > 0:
+			for r in all_total_depth[i]:
+				ba = list(map(int, r["BREAK_INDEXES_ALLOWED"].split(",")))
+
+				previous=(192,0)
+				for x,y in zip(ba,range(10)):
+					l = '<polyline class="line'+str(i)+'" points="'
+					l += str((previous[0]-192)*zoomx)+","+str((10-previous[1])*zoomy)+" "
+					l += str((x-192)*zoomx)+","+str((10-y)*zoomy)+" "
+					l += '" STYLE />'
+					all_lines[l] = style
+					previous=(x,y)
 	all_lines2 = []
 	for k,v in all_lines.items():
 		all_lines2.append(k.replace("STYLE",v))
