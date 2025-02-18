@@ -38,10 +38,12 @@ def load_results(batch=""):
 
 	# Get the folder with the least amount of samples
 	all_results = {}
-	for path in sorted([ f.path for f in os.scandir(batch) if f.is_dir() ]):
+
+	for path in sorted([ f.path for f in os.scandir(batch) if f.is_dir() ]) + [ batch ] :
 		all_results[path] = []
 		try:
 			for fn in [os.path.join(path, name) for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]:
+				#print(fn)
 				with open(fn, 'r') as f:
 					data = json.load(f)
 
@@ -57,6 +59,7 @@ def load_results(batch=""):
 				#	break
 		except OSError as error:
 			print(path,"doesn't exists")
+
 
 	print("Loaded", sum([len(x[1]) for x in all_results.items()]), "results.")
 	return all_results
@@ -127,7 +130,7 @@ def get_stats_html(batch, all_results):
 
 	# TODO menu
 
-	result = "Not Found"
+	result = "Get_Stats_HTML: Batch "+batch+" Not Found"
 
 	for n in [ "00", "01", "02", "04" ]:
 		if n in batch:
@@ -137,7 +140,9 @@ def get_stats_html(batch, all_results):
 	   "05" in batch:
 		result = get_stats_html_node_count_limit(all_results)
 
-	print(batch)
+	if "07" in batch:
+		result = get_stats_html_heuristic_array_variations(all_results)
+
 	
 	# Write result in doc/
 	f = open("doc/"+batch+".html", "w")
@@ -468,6 +473,82 @@ def get_stats_html_node_count_limit(all_results):
 	oj += "jb470 = document.getElementById('line13_10_16');"
 	oj += "jb470.onclick = function () { window.open('https://e2.bucas.name/#puzzle==Joshua_Blackwood_470','_blank'); };"
 	oj += "jb470.style.stroke = '#00f';"
+	oj += "</script>"
+	oj += "</body>"
+	oj += "</html>"
+
+	return o+o_svg+oj
+
+def get_stats_html_heuristic_array_variations(all_results):
+
+	all_total_depth = []
+	for i in range(257):
+		all_total_depth.append( [] )
+
+	if len(all_results.keys()) > 1:
+		return "More than one"
+
+	v = list(all_results.values())[0]
+	for r in v:
+		
+		ic = numpy.array(r["index_counts"]+[0])
+		r["zero"] = numpy.where(ic == 0)[0][1]
+		all_total_depth[r["zero"]].append( r )
+
+	jb470 = { "HEURISTIC_ARRAY" : str(jobs.get_heuristic_array_from_variations( jobs.jblackwood_heuristic_array_variations )) }
+	all_total_depth[256].append( jb470 )
+
+	for i in range(257):
+		if len(all_total_depth[i]) > 0:
+			print(i, len(all_total_depth[i]))
+
+	o = "<html>"
+	o += "<head>"
+	o += "<style>"
+	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:100%;}\n"
+	o += "table {border-spacing:0px; margin:auto;}\n"
+	o += "color: { white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }\n"
+	o += "</style>\n"
+	o += "</head>"
+	o += "<body>"
+
+	o_svg = '<svg height="1024" width="2048" xmlns="http://www.w3.org/2000/svg">'
+	zoom = 5
+	all_lines = {}
+	for i in range(100, 257):
+		r,g,b,a = int(0*255),int(0*255),int(0*255),int(0*255)
+		if i < 240:
+			pass
+		elif i >= 240 and i < 256:
+			r,g,b,a = palette.palette[(i-240)*16] 
+			r,g,b,a = int(r*255),int(g*255),int(b*255),int(a*255)
+		else:
+			r,g,b,a = int(0*255),int(0*255),int(1*255),int(0*255)
+		style = 'style="fill:none; stroke:rgb('+str(r)+','+str(g)+','+str(b)+'); stroke-width:1;"'
+
+		
+		if len(all_total_depth[i]) > 0:
+			for r in all_total_depth[i]:
+				ha = eval(r["HEURISTIC_ARRAY"].replace("{","[").replace("}","]"))
+				previous=(0,0)
+				for x,y in zip(range(256),ha):
+					if x>100 and y == 0:
+						break
+					l = '<polyline class="line'+str(i)+'" points="'
+					l += str(previous[0]*zoom)+","+str((120-previous[1])*zoom)+" "
+					l += str(x*zoom)+","+str((120-y)*zoom)+" "
+					l += '" STYLE />'
+					previous=(x,y)
+					all_lines[l] = style
+	all_lines2 = []
+	for k,v in all_lines.items():
+		all_lines2.append(k.replace("STYLE",v))
+	print("Lines compiled :", len(all_lines2))
+
+	o_svg += "\n".join(all_lines2)
+	o_svg += '</svg>'
+
+	oj = "<script>"
 	oj += "</script>"
 	oj += "</body>"
 	oj += "</html>"

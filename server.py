@@ -96,7 +96,7 @@ class MyServer(BaseHTTPRequestHandler):
 			# Build up name
 			job_path = "results/"+job_result["job_batch"]
 			if "job_path" in job_result:
-				job_path += job_result["job_path"].replace("results/","")
+				job_path += "/"+job_result["job_path"].replace("results/","")
 
 			# Create folder
 			if not os.path.exists( job_path ):
