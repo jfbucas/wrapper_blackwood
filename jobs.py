@@ -445,6 +445,34 @@ def get_next_job(batch):
 
 		return next_job
 
+	elif "batch10" in batch:
+		break_indexes = list(map(int, default_template_params["BREAK_INDEXES_ALLOWED"].split(",")))
+		
+		vcount = 0
+		while vcount < 128:
+			i = random.randint(0, len(break_indexes)-1)
+			m = random.randint(0,4)-2
+			if m == 0:
+				continue
+
+			if break_indexes[i]+m in break_indexes:
+				continue
+			break_indexes[i]= break_indexes[i]+m
+			vcount += 1 
+
+		next_job = {
+			"job_title": "Break Indexes variations",
+			"job_description": "Variations on on the break indexes allowed",
+			"job_batch": "batch10_break_indexes_32_variations",
+			"BREAK_INDEXES_ALLOWED" : ",".join(map(str,sorted(break_indexes))),
+			"NODE_COUNT_LIMIT" : 100000000000,
+			"NUMBER_LOOPS"          : 2,
+			"NUMBER_SOLVEPUZZLE"    : 1,
+			"HOOK" : HOOK,
+			}
+
+		return next_job
+
 	
 	return None
 	#global job_list

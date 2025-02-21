@@ -147,6 +147,8 @@ def get_stats_html(batch, all_results):
 		result = get_stats_html_break_indexes_allowed(all_results)
 	elif "09" in batch:
 		result = get_stats_html_break_indexes_allowed(all_results)
+	elif "10" in batch:
+		result = get_stats_html_break_indexes_allowed(all_results)
 	
 	# Write result in doc/
 	f = open("doc/"+batch+".html", "w")
@@ -594,7 +596,7 @@ def get_stats_html_break_indexes_allowed(all_results):
 	o += "</head>"
 	o += "<body>"
 
-	o_svg = '<svg height="2048" width="2048" xmlns="http://www.w3.org/2000/svg">'
+	o_svg = '<svg height="2048" width="2500" xmlns="http://www.w3.org/2000/svg">'
 	zoomx = 40
 	zoomy = 150
 	all_lines = {}
@@ -607,7 +609,7 @@ def get_stats_html_break_indexes_allowed(all_results):
 			r,g,b,a = int(r*255),int(g*255),int(b*255),int(a*255)
 		else:
 			r,g,b,a = int(0*255),int(0*255),int(1*255),int(0*255)
-		style = 'style="fill:none; stroke:rgb('+str(r)+','+str(g)+','+str(b)+'); stroke-width:3;"'
+		style = 'style="fill:none; stroke:rgb('+str(r)+','+str(g)+','+str(b)+'); stroke-width:10;"'
 
 		
 		if len(all_total_depth[i]) > 0:
