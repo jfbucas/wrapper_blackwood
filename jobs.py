@@ -83,6 +83,9 @@ def get_next_job_params( next_job ):
 	template_params = default_template_params.copy()
 	for k in next_job.keys():
 		template_params[k] = next_job[k]
+	
+	# Make sure the array is properly defined
+	template_params["BOARD_ORDER"] = str(template_params["BOARD_ORDER"]).replace("[","{").replace("],","},\n").replace("]]","}}")
 
 	return template_params
 

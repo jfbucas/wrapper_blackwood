@@ -149,6 +149,8 @@ def get_stats_html(batch, all_results):
 		result = get_stats_html_break_indexes_allowed(all_results)
 	elif "10" in batch:
 		result = get_stats_html_break_indexes_allowed(all_results)
+	elif "11" in batch:
+		result = get_stats_html_board_order(all_results)
 	
 	# Write result in doc/
 	f = open("doc/"+batch+".html", "w")
@@ -461,6 +463,7 @@ def get_stats_html_node_count_limit(all_results):
 	zoom=150
 	for path in all_results.keys():
 		sp = path.split("/")[-1].replace("-","_")
+		print(path, sp)
 		#print(list(map(int, sp.split("_"))))
 		v = (sum( map(int, sp.split("_")) )*5) % 256
 		g = f"{v:#0{4}x}".replace("0x","")
@@ -631,6 +634,97 @@ def get_stats_html_break_indexes_allowed(all_results):
 
 	o_svg += "\n".join(all_lines2)
 	o_svg += '</svg>'
+
+	oj = "<script>"
+	oj += "</script>"
+	oj += "</body>"
+	oj += "</html>"
+
+	return o+o_svg+oj
+
+def get_stats_html_board_order(all_results):
+
+	all_total_depth = []
+	for i in range(257):
+		all_total_depth.append( [] )
+
+	if len(all_results.keys()) > 1:
+		return "More than one"
+
+	v = list(all_results.values())[0]
+	for r in v:
+		
+		ic = numpy.array(r["index_counts"]+[0])
+		r["zero"] = numpy.where(ic == 0)[0][1]
+		all_total_depth[r["zero"]].append( r )
+
+	jb470 = { "BOARD_ORDER" : str(jobs.default_template_params["BOARD_ORDER"]) }
+
+	all_total_depth[256].append( jb470 )
+
+	for i in range(257):
+		if len(all_total_depth[i]) > 0:
+			print(i, len(all_total_depth[i]))
+
+	o = "<html>"
+	o += "<head>"
+	o += "<style>"
+	o += "body {background-image:url('https://e2.bucas.name/img/fabric.png'); background-color: #444; text-align:center; zoom:25%;}\n"
+	o += "table {border-spacing:0px; margin:auto;}\n"
+	o += "color: { white; font-family: Sans-serif; text-shadow: 0px 0px 1px #222; }\n"
+	o += "</style>\n"
+	o += "</head>"
+	o += "<body>"
+
+	o_svg = '<svg height="4096" width="4096" xmlns="http://www.w3.org/2000/svg">'
+	zoomx = 256
+	zoomy = 256
+	w = 3
+	all_lines = {}
+	coords = [ (i%16,i//16) for i in range(256) ]
+	for i in range(240, 257):
+		r,g,b,a = int(0*255),int(0*255),int(0*255),int(0*255)
+		if i < 256:
+			r,g,b,a = palette.palette[(i-240)*16] 
+			r,g,b,a = int(r*255),int(g*255),int(b*255),int(a*255)
+		else:
+			r,g,b,a = int(0*255),int(0*255),int(1*255),int(0*255)
+		style = 'style="fill:none; stroke:rgb('+str(r)+','+str(g)+','+str(b)+'); stroke-width:'+str(w)+';"'
+
+		
+		if len(all_total_depth[i]) > 0:
+			for r in all_total_depth[i]:
+				board_order = eval(r["BOARD_ORDER"].replace("{","[").replace("}","]"))
+				board_order = [x for xs in board_order for x in xs] # Flatten array
+
+				board_order = sorted(zip(board_order, coords), key=lambda x:x[0])
+				for order, (x,y) in board_order:
+					l = '<polyline points="'
+					l += str(x*zoomx+order)+","+str(y*zoomy)+" "
+					l += str(x*zoomx+order)+","+str(y*zoomy+zoomy)+" "
+					l += '" STYLE />'
+					all_lines[l] = style
+	all_lines2 = []
+	for k,v in all_lines.items():
+		all_lines2.append(k.replace("STYLE",v))
+	print("Lines compiled :", len(all_lines2))
+
+	o_svg += "\n".join(all_lines2)
+	
+	# Grid
+	for y in range(0,17):
+		o_svg += '<polyline points="'
+		o_svg += "0,"+str(y*zoomy)+" "
+		o_svg += "4096,"+str(y*zoomy)
+		o_svg += '" style="fill:none; stroke:black; stroke-width:10px;"/>'
+	for x in range(0,17):
+		o_svg += '<polyline points="'
+		o_svg += str(x*zoomx)+",0 "
+		o_svg += str(x*zoomx)+",4096"
+		o_svg += '" style="fill:none; stroke:black; stroke-width:10px;"/>'
+
+	o_svg += '</svg>'
+
 
 	oj = "<script>"
 	oj += "</script>"
