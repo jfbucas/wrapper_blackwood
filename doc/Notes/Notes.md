@@ -16,17 +16,17 @@ heuristic_sides = new List<int>() { 13, 16, 10 };
 ```
 
 The current known best scores are using two different sets of patterns
-![Patterns prioritisatino](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/Patterns_Priorization_470_a.png)
-![Patterns prioritisatino](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/Patterns_Priorization_470_b.png)
+![Patterns prioritisatino](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/main/doc/Notes/Patterns_Priorization_470_a.png)
+![Patterns prioritisatino](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/main/doc/Notes/Patterns_Priorization_470_b.png)
 
 
-Here is a page attempting to represent the results of many samples of runs of the algorithm with different sets of three patterns.
+[Here is a page](../batch00_edge_combos_stats.html) attempting to represent the results of many samples of runs of the algorithm with different sets of three patterns.
 Each of the five half-squares represent one of the edge color, and for each, two of the internal colors.
 The number/color in each represents how far the algorithm was able to go for this set of three patterns.
 Below that, we have the depth heatmap which shows how many times the algorithm spent on a particular depth.
 The orange bars in the middle are the positions around the mandatory piece.
 The orange bars towards the end are the edge pieces.
-https://github.com/jfbucas/wrapper_blackwood/blob/main/doc/batch00_edge_combos_stats.html
+
 
 Note: Given the low number of samples, it would be good to attempt to reproduce these results to validate or invalidate.
 
@@ -58,7 +58,7 @@ If the number is lower, the algorithm simply backtracks.
 Using many samples with random variations of the array, the following picture shows how far the algorithm was able to go for each variation, the greener the better.
 Joshua Blackwood's manually crafted values, the line in blue is right in the middle of the green area.
 
-![Heuristic Array](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/heuristic_array.png)
+![Heuristic Array](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/main/doc/Notes/heuristic_array.png)
 
 ## Heuristic :: The search order
 The search starts at the bottom left of the puzzle, which is the nearest to the mandatory piece in the middle.
@@ -67,7 +67,7 @@ After depth 180, the algorithm tries to place the remaining border pieces every 
 The border pieces have higher constraints and need to be placed progressively, including the third corner.
 The search order doesn't spiral-in (a.k.a. starts with the border ring), and it doesn't leave it to the end (like a classic row-scan) either; a "Not too tight and not too loose" approach.
 
-![Board Order](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/board_order.svg)
+![Board Order](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/main/doc/Notes/board_order.svg)
 
 ## Heuristic :: Breaks allowed
 Approaching the end of the search, a number of edges mismatches are allowed.
