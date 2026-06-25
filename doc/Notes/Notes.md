@@ -1,7 +1,6 @@
 # What makes Joshua Blackwood's algorithm so good?
 
-
-Joshua Blackwood's algorithm is a classic back-tracker with manually crafted heuristics and optimisations.
+[Joshua Blackwood's algorithm](https://github.com/jblackwood345/EternityII_Solver) is a classic back-tracker with manually crafted heuristics and optimisations.
 
 
 ## Heuristic :: Patterns prioritisation
@@ -17,8 +16,8 @@ heuristic_sides = new List<int>() { 13, 16, 10 };
 ```
 
 The current known best scores are using two different sets of patterns
-Patterns_Priorization_470_a.png
-Patterns_Priorization_470_b.png
+![Patterns prioritisatino](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/Patterns_Priorization_470_a.png)
+![Patterns prioritisatino](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/Patterns_Priorization_470_b.png)
 
 
 Here is a page attempting to represent the results of many samples of runs of the algorithm with different sets of three patterns.
@@ -59,7 +58,7 @@ If the number is lower, the algorithm simply backtracks.
 Using many samples with random variations of the array, the following picture shows how far the algorithm was able to go for each variation, the greener the better.
 Joshua Blackwood's manually crafted values, the line in blue is right in the middle of the green area.
 
- heuristic_array.png
+![Heuristic Array](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/heuristic_array.png)
 
 ## Heuristic :: The search order
 The search starts at the bottom left of the puzzle, which is the nearest to the mandatory piece in the middle.
@@ -68,7 +67,7 @@ After depth 180, the algorithm tries to place the remaining border pieces every 
 The border pieces have higher constraints and need to be placed progressively, including the third corner.
 The search order doesn't spiral-in (a.k.a. starts with the border ring), and it doesn't leave it to the end (like a classic row-scan) either; a "Not too tight and not too loose" approach.
 
-board_order.svg
+![Board Order](https://raw.githubusercontent.com/jfbucas/wrapper_blackwood/blob/main/doc/Notes/board_order.svg)
 
 ## Heuristic :: Breaks allowed
 Approaching the end of the search, a number of edges mismatches are allowed.
@@ -100,7 +99,7 @@ This means that the row-scan can get stuck in an impossible situation.
 So we want to be sure we abandon the attempt and try to find a more fertile one.
 
 ## Optimisation
-Joshua Blackwood made sure that the memory footprint of those lists in C# fit in the CPU cache.
+Joshua Blackwood made sure that the memory footprint of those lists in C# fits in the CPU cache.
 
 The algorithm uses lists of pieces indexed in a global lookup table.
 A list of possible pieces is assigned for each position on the puzzle board.
